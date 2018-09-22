@@ -10,7 +10,7 @@ var autoIncrement = require('mongoose-auto-increment-fix');
 
 //Connect DB
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/yummy').then(
+mongoose.connect('mongodb://localhost:27017/yummysolution').then(
     () => {
         console.log('Kết nối DB thành công');
     },
