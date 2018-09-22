@@ -178,7 +178,7 @@ router.post('/filter', function (req, res, next) {
 });
 
 router.get('/', passport.authenticate('jwt', {session: false, failureRedirect: '/unauthorized'}), function (req, res, next) {
-    var page = req.params.page;
+    var page = req.params("page");
     Post.find({'is_active': true})
         .limit(10).skip(page * 10)
         .sort({created_date: -1})
@@ -209,7 +209,7 @@ router.post('/nearme', function (req, res, next) {
             distanceField: 'location'
         }}
     ])
-        .limit(10).skip(10*req.params.page)
+        .limit(10).skip(10*req.params("page"))
         .exec(function (err, posts) {
         if (err) {
             res.json({

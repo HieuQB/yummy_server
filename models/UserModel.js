@@ -59,7 +59,7 @@ var UserSchema = new Schema({
 }, {
     versionKey: false
 });
-UserSchema.plugin(autoIncrement.plugin, 'User');
+UserSchema.plugin(autoIncrement.plugin,{model: 'User', startAt:1});
 
 // Saves the user's password hashed (plain text password storage is not good)
 UserSchema.pre('save', function (next) {
