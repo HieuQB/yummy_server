@@ -1,4 +1,4 @@
 module.exports = {
-    'jwtSecret': 'mxhgiaothong',
+    'jwtSecret': 'yummy',
     'dbUri': 'mongodb://admin:xxxxxxxxx@dsxxxxx.mlab.com:xxxxx/appname'
 };

@@ -123,7 +123,7 @@ router.post('/forgotPassword', function (req, res, next) {
         subject: 'Mã xác nhận Yummy',
         text: `Mã xác nhận của bạn là : ${codeGenerates}`
     };
-
+    console.log("aaa")
     transporter.sendMail(data, (err, info) => {
         if (err) {
             res.send({

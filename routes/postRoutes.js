@@ -31,30 +31,6 @@ router.post('/', passport.authenticate('jwt', {session: false, failureRedirect: 
     });
 });
 
-router.get('/', passport.authenticate('jwt', {session: false, failureRedirect: '/unauthorized'}), function (req, res, next) {
-    var page = req.params.page;
-    Post.find({'is_active': true})
-        .limit(10).skip(page * 10)
-        .sort({created_date: -1})
-        .populate('creator')
-        .populate("categories")
-        .exec((err, posts) => {
-            if (err) {
-                res.json({
-                    success: false,
-                    data: [],
-                    message: `Error is : ${err}`
-                });
-            } else {
-                res.json({
-                    success: true,
-                    data: posts,
-                    message: "success"
-                });
-            }
-        });
-});
-
 router.use('/:postId', passport.authenticate('jwt', {session: false, failureRedirect: '/unauthorized'}), function(req, res, next) {
     Post.findById(req.params.postId).populate('creator').populate('categories').populate('interested_people')
         .populate({
@@ -201,13 +177,40 @@ router.post('/filter', function (req, res, next) {
     }
 });
 
+router.get('/', passport.authenticate('jwt', {session: false, failureRedirect: '/unauthorized'}), function (req, res, next) {
+    var page = req.params.page;
+    Post.find({'is_active': true})
+        .limit(10).skip(page * 10)
+        .sort({created_date: -1})
+        .populate('creator')
+        .populate("categories")
+        .exec((err, posts) => {
+            if (err) {
+                res.json({
+                    success: false,
+                    data: [],
+                    message: `Error is : ${err}`
+                });
+            } else {
+                res.json({
+                    success: true,
+                    data: posts,
+                    message: "success"
+                });
+            }
+        });
+});
+
+
 router.post('/nearme', function (req, res, next) {
     Post.aggregate([
         {$geoNear: {
             near: [req.body.latitude, req.body.longitude],
             distanceField: 'location'
         }}
-    ]).exec(function (err, posts) {
+    ])
+        .limit(10).skip(10*req.params.page)
+        .exec(function (err, posts) {
         if (err) {
             res.json({
                 success: false,
@@ -228,6 +231,57 @@ router.post('/nearme', function (req, res, next) {
                         data: results,
                         message: "success"
                     });
+                }
+            })
+        }
+    });
+});
+
+router.post('/list_main', function (req, res, next) {
+    Post.aggregate([
+        {$geoNear: {
+                near: [req.body.latitude, req.body.longitude],
+                distanceField: 'location'
+            }}
+    ]).exec(function (err, posts) {
+        if (err) {
+            res.json({
+                success: false,
+                data: [],
+                message: `Error is : ${err}`
+            });
+        } else {
+            Post.populate(posts, [{path: 'creator'}, {path: 'category'}, {path: 'reaction'}], function (err, results) {
+                if (err) {
+                    res.json({
+                        success: false,
+                        data: [],
+                        message: `Error is : ${err}`
+                    });
+                } else {
+                    const parseJsonAsync = (jsonString) => {
+                        return new Promise(resolve => {
+                            setTimeout(() => {
+                                resolve(JSON.parse(jsonString))
+                            })
+                        })
+                    };
+                    parseJsonAsync(results).then(jsonData => {
+                        for(let items of jsonData['craetor']) {
+                            // Lấy ra các trường của Creator trong jsonData
+                            // rồi lấy thêm thông tin của user đăng nhập (request)
+                            // rồi dùng công thức để tính
+                            console.log(items);
+                        }
+
+                    });
+
+                    res.json({
+                        success: true,
+                        data: results,
+                        message: "success"
+                    });
+
                 }
             })
         }
