@@ -15,7 +15,7 @@ mongoose.connect('mongodb://localhost:27017/yummysolution').then(
         console.log('Kết nối DB thành công');
     },
     err => {
-        console.log('Kết nối DB thất bại');
+        console.log(err);
     }
 );
 
