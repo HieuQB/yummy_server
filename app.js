@@ -17,7 +17,7 @@ if (process.env.OPENSHIFT_MONGODB_DB_URL) {
     url = process.env.OPENSHIFT_MONGODB_DB_URL +
         process.env.OPENSHIFT_APP_NAME;
 } else {
-    url = 'mongodb://127.0.0.1:27017/yummy';
+    url = 'mongodb://172.30.123.164:27017/yummy';
 }
 
 mongoose.connect(url).then(
