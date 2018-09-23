@@ -13,12 +13,11 @@ mongoose.Promise = global.Promise;
 
 var url = "";
 // if OPENSHIFT env variables are present, use the available connection info:
-if (process.env.OPENSHIFT_MONGODB_DB_URL) {
-    url = process.env.OPENSHIFT_MONGODB_DB_URL +
-        process.env.OPENSHIFT_APP_NAME;
-} else {
-    url = 'mongodb://localhost:27017/yummy';
-}
+// if (process.env.OPENSHIFT_MONGODB_DB_URL) {
+    url = process.env.OPENSHIFT_MONGODB_DB_URL + 'yummy';
+// } else {
+//     url = 'mongodb://localhost:27017/yummy';
+// }
 
 mongoose.connect(url).then(
     () => {
