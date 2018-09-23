@@ -25,5 +25,7 @@
   },
   "devDependencies": {
     "nodemon": "^1.17.1"
-  }
+  },
+  "postinstall": "export HOME=/var/lib/openshift/[instance-id]/app-root/runtime/repo; ./node_modules/bower/bin/bower install"
+
 }
