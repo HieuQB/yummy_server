@@ -10,9 +10,10 @@ var autoIncrement = require('mongoose-auto-increment-fix');
 
 //Connect DB
 mongoose.Promise = global.Promise;
- 
+
 // if OPENSHIFT env variables are present, use the available connection info:
-var url = 'mongodb://172.30.123.164:27017/yummy';
+// var url = 'mongodb://172.30.123.164:27017/yummy';
+var url = 'mongodb://yummy:yummy@172.30.123.164:27017/yummy?authSource=admin';
 
 mongoose.connect(url).then(
     () => {
