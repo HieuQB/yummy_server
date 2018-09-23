@@ -13,7 +13,7 @@ mongoose.Promise = global.Promise;
 
 // if OPENSHIFT env variables are present, use the available connection info:
 // var url = 'mongodb://172.30.123.164:27017/yummy';
-var url = 'mongodb://yummy:yummy@172.30.123.164:27017/yummy?authSource=admin';
+var url = 'mongodb://yummy:yummy@172.30.123.164:27017/yummy';
 
 mongoose.connect(url).then(
     () => {
