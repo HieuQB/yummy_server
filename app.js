@@ -13,13 +13,8 @@ mongoose.Promise = global.Promise;
 
 // if OPENSHIFT env variables are present, use the available connection info:
 var url = "";
-if(process.env.MONGOLAB_URI) {
-    url = process.env.MONGOLAB_URI + ":" + process.env.PORT + "yummy";
-} else if(process.env.MONGOHQ_URL) {
-    url =  process.env.MONGOHQ_URL + ":" + process.env.PORT + "yummy";
-} else {
-    url = 'mongodb://127.0.0.1:27017/yummy';
-}
+    url = 'mongodb://heroku_sz1ztcq4:r6fu4qeasekm9ald9isic7imn@ds243812.mlab.com:43812/heroku_sz1ztcq4';
+    // url = 'mongodb://127.0.0.1:27017/yummyserver';
 
 mongoose.connect(url).then(
     () => {
