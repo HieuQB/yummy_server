@@ -12,8 +12,8 @@ var autoIncrement = require('mongoose-auto-increment-fix');
 mongoose.Promise = global.Promise;
 
 // if OPENSHIFT env variables are present, use the available connection info:
-// var url = 'mongodb://localhost:27017/yummy';
-var url = 'mongodb://yummy:yummy@172.30.123.164:27017/yummy';
+var url = 'mongodb://localhost:27017/yummy';
+// var url = 'mongodb://yummy:yummy@172.30.123.164:27017/yummy';
 
 mongoose.connect(url).then(
     () => {
