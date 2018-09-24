@@ -24,7 +24,7 @@ var PostSchema = new Schema({
     versionKey: false
 });
 
-PostSchema.plugin(autoIncrement.plugin, {model: 'Post', startAt:1});
+PostSchema.plugin(autoIncrement.plugin, {model: 'Post'});
 
 
 function addCategoryToDatabase(categories, callback) {

@@ -25,5 +25,5 @@ var ReactionSchema = new Schema({
     usePushEach: true,
     versionKey: false
 });
-ReactionSchema.plugin(autoIncrement.plugin, {model: 'Reaction', startAt:1});
+ReactionSchema.plugin(autoIncrement.plugin, {model: 'Reaction'});
 module.exports = mongoose.model('Reaction', ReactionSchema);

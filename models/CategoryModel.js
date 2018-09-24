@@ -8,5 +8,5 @@ var CategorySchema = new Schema({
     versionKey: false
 });
 
-CategorySchema.plugin(autoIncrement.plugin, {model: 'Category', startAt:1});
+CategorySchema.plugin(autoIncrement.plugin, {model: 'Category'});
 module.exports  = mongoose.model('Category', CategorySchema);
