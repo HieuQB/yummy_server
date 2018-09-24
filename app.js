@@ -12,9 +12,9 @@ var autoIncrement = require('mongoose-auto-increment-fix');
 mongoose.Promise = global.Promise;
 
 // if OPENSHIFT env variables are present, use the available connection info:
-var url = "";
-    url = 'mongodb://heroku_sz1ztcq4:r6fu4qeasekm9ald9isic7imn@ds243812.mlab.com:43812/heroku_sz1ztcq4';
+// var   url = 'mongodb://heroku_sz1ztcq4:r6fu4qeasekm9ald9isic7imn@ds243812.mlab.com:43812/heroku_sz1ztcq4';
     // url = 'mongodb://127.0.0.1:27017/yummyserver';
+var url = 'mongodb://hieuminh:14520288Mh@ds046037.mlab.com:46037/yummy';
 
 mongoose.connect(url).then(
     () => {
