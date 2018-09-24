@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "bcrypt": "^1.0.3",
@@ -25,9 +25,5 @@
     "socket.io": "^2.1.1",
     "socketio-file-upload": "^0.4.4",
     "voucher-code-generator": "^1.1.1"
-  },
-  "devDependencies": {
-    "nodemon": "^1.17.1"
-  },
-  "postinstall": "export HOME=/var/lib/openshift/[instance-id]/app-root/runtime/repo; ./node_modules/bower/bin/bower install"
+  }
 }
