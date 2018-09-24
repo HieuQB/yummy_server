@@ -21,7 +21,7 @@ var UserSchema = new Schema({
     },
     password: {
         type: String,
-        match: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/
+        // match: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/
     },
     avatar: {
         type: String,

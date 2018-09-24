@@ -12,8 +12,8 @@ var autoIncrement = require('mongoose-auto-increment-fix');
 mongoose.Promise = global.Promise;
 
 // if OPENSHIFT env variables are present, use the available connection info:
-// var url = 'mongodb://172.30.123.164:27017/yummy';
-var url = 'mongodb://yummy:yummy@172.30.123.164:27017/yummy';
+var url = 'mongodb://localhost:27017/yummy';
+// var url = 'mongodb://yummy:yummy@172.30.123.164:27017/yummy';
 
 mongoose.connect(url).then(
     () => {
@@ -35,6 +35,23 @@ var reactionRoutes = require('./routes/reactionRoutes');
 var categoryRoutes = require('./routes/categoryRoutes');
 
 var app = express();
+var server = require("http").createServer(app);
+var io = require("socket.io").listen(server);
+var listUser = [];
+io.sockets.on('connection', function (socket) {
+    console.log("co nguoi ket noi");
+    socket.on('user_login', function () {
+       if (listUser.indexOf(user_name) > -1) {
+           return;
+       }
+       listUser.push(user_name);
+       socket.user = user_name;
+    });
+
+    socket.on('send_message', function (message) {
+        io.sockets.emit('receiver_message', {data: socket.user + ": "+ message});
+    });
+});
 
 //initialize passport
 app.use(passport.initialize());
