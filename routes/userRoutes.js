@@ -46,7 +46,12 @@ router.post('/register', function (req, res) {
                     message: err
                 }).status(301);
             }
-            res.json({success: true, data:user, message: 'Successfully created new user.'});
+            // Create token if the password matched and no error was thrown
+            var token = jwt.sign(user.toJSON(), config.secret, {
+                expiresIn: 604800 // in 7 days
+            });
+
+            res.json({success: true, data:user, token: 'JWT ' + token, expiresIn:Date.now() + 604800*1000, message: 'Successfully created new user.'});
         });
     }
 });
@@ -79,9 +84,9 @@ router.post('/login', function (req, res) {
                 if (isMatch && !err) {
                     // Create token if the password matched and no error was thrown
                     var token = jwt.sign(user.toJSON(), config.secret, {
-                        expiresIn: 86400000*7 // in 7 days
+                        expiresIn: 604800 // in 7 days
                     });
-                    res.json({success: true, token: 'JWT ' + token, _id: user._id});
+                    res.json({success: true, token: 'JWT ' + token, expiresIn:Date.now() + 604800*1000, _id: user._id});
                 } else {
                     res.send({success: false, message: 'Authentication failed. Passwords did not match.'});
                 }
@@ -123,7 +128,6 @@ router.post('/forgotPassword', function (req, res, next) {
         subject: 'Mã xác nhận Yummy',
         text: `Mã xác nhận của bạn là : ${codeGenerates}`
     };
-    console.log("aaa")
     transporter.sendMail(data, (err, info) => {
         if (err) {
             res.send({

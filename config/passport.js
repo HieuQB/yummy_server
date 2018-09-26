@@ -8,7 +8,7 @@ module.exports = function(passport) {
     var opts = {};
     opts.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme("jwt");
     opts.secretOrKey = config.secret;
-    opts.expiresIn = "5s";
+    opts.expiresIn = 604800;
     passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
         User.findOne({email: jwt_payload.email}, function(err, user) {
             if (err) {
