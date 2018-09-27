@@ -37,9 +37,9 @@ var categoryRoutes = require('./routes/categoryRoutes');
 
 var app = express();
 var server = require("http").createServer(app);
-var io = require("socket.io").listen(server);
+var socket = require('socket.io')(server);
 var listUser = [];
-io.sockets.on('connection', function (socket) {
+socket.on('connection', function (socket) {
     console.log("co nguoi ket noi");
     socket.on('user_login', function () {
        if (listUser.indexOf(user_name) > -1) {
@@ -50,7 +50,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('send_message', function (message) {
-        io.sockets.emit('receiver_message', {data: socket.user + ": "+ message});
+        sockets.emit('receiver_message', {data: socket.user + ": "+ message});
     });
 });
 
