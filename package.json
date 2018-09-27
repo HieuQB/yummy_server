@@ -22,8 +22,6 @@
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "serve-favicon": "~2.4.5",
-    "socket.io": "^2.1.1",
-    "socketio-file-upload": "^0.4.4",
     "voucher-code-generator": "^1.1.1"
   }
 }

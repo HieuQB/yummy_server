@@ -36,23 +36,23 @@ var reactionRoutes = require('./routes/reactionRoutes');
 var categoryRoutes = require('./routes/categoryRoutes');
 
 var app = express();
-var server = require("http").createServer(app);
-var socket = require('socket.io')(server);
-var listUser = [];
-socket.on('connection', function (socket) {
-    console.log("co nguoi ket noi");
-    socket.on('user_login', function () {
-       if (listUser.indexOf(user_name) > -1) {
-           return;
-       }
-       listUser.push(user_name);
-       socket.user = user_name;
-    });
-
-    socket.on('send_message', function (message) {
-        sockets.emit('receiver_message', {data: socket.user + ": "+ message});
-    });
-});
+// var server = require("http").createServer(app);
+// var socket = require('socket.io')(server);
+// var listUser = [];
+// socket.on('connection', function (socket) {
+//     console.log("co nguoi ket noi");
+//     socket.on('user_login', function () {
+//        if (listUser.indexOf(user_name) > -1) {
+//            return;
+//        }
+//        listUser.push(user_name);
+//        socket.user = user_name;
+//     });
+//
+//     socket.on('send_message', function (message) {
+//         sockets.emit('receiver_message', {data: socket.user + ": "+ message});
+//     });
+// });
 
 //initialize passport
 app.use(passport.initialize());
