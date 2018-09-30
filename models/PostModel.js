@@ -7,7 +7,7 @@ var PostSchema = new Schema({
     creator: {type: Number, ref: 'User'},
     amount: {type: Number},
     link: {type: String},
-    images: [{type: String}],
+    image: {type: String},
     interested_people: [{type: Number, ref: 'User'}],
     joined_people: [{type: Number, ref: 'User'}],
     categories: [{type: Number, ref: 'Category'}],

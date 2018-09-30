@@ -10,8 +10,8 @@ var voucher_codes = require('voucher-code-generator');
 function getNextSequenceValue(sequenceName) {
     var sequenceDocument = db.counters.findAndModify(
         {
-            query: {_id: sequenceName},
-            update: {$inc: {sequence_value: 1}},
+            query: { _id: sequenceName },
+            update: { $inc: { sequence_value: 1 } },
             new: true
         });
     return sequenceDocument.sequence_value;
@@ -19,7 +19,7 @@ function getNextSequenceValue(sequenceName) {
 
 router.post('/register', function (req, res) {
     if (!req.body.email || !req.body.password) {
-        res.json({success: false, message: 'Please enter email and password.'});
+        res.json({ success: false, message: 'Please enter email and password.' });
     } else {
         var newUser = new User({
             email: req.body.email,
@@ -39,7 +39,7 @@ router.post('/register', function (req, res) {
         });
 
         // Attempt to save the user
-        newUser.save(function (err,user) {
+        newUser.save(function (err, user) {
             if (err) {
                 return res.json({
                     success: false,
@@ -51,21 +51,21 @@ router.post('/register', function (req, res) {
                 expiresIn: 604800 // in 7 days
             });
 
-            res.json({success: true, data:user, token: 'JWT ' + token, expiresIn:Date.now() + 604800*1000, message: 'Successfully created new user.'});
+            res.json({ success: true, data: user, token: 'JWT ' + token, expiresIn: Date.now() + 604800 * 1000, message: 'Successfully created new user.' });
         });
     }
 });
 
 router.post('/changePass', function (req, res) {
-    User.findOne({email: req.body.email}).exec(
+    User.findOne({ email: req.body.email }).exec(
         function (err, user) {
             if (err) throw err;
             if (!user) {
-                res.send({success: false, message: 'Authentication failed. User not found.', status: 400});
+                res.send({ success: false, message: 'Authentication failed. User not found.', status: 400 });
             } else {
                 user.password = req.body.password;
                 user.save();
-                res.send({success: true, data: user, status: 200});
+                res.send({ success: true, data: user, status: 200 });
             }
         });
 });
@@ -77,7 +77,7 @@ router.post('/login', function (req, res) {
         if (err) throw err;
 
         if (!user) {
-            res.send({success: false, message: 'Authentication failed. User not found.'});
+            res.send({ success: false, message: 'Authentication failed. User not found.' });
         } else {
             // Check if password matches
             user.comparePassword(req.body.password, function (err, isMatch) {
@@ -86,9 +86,9 @@ router.post('/login', function (req, res) {
                     var token = jwt.sign(user.toJSON(), config.secret, {
                         expiresIn: 604800 // in 7 days
                     });
-                    res.json({success: true, token: 'JWT ' + token, expiresIn:Date.now() + 604800*1000, _id: user._id});
+                    res.json({ success: true, token: 'JWT ' + token, expiresIn: Date.now() + 604800 * 1000, data: user });
                 } else {
-                    res.send({success: false, message: 'Authentication failed. Passwords did not match.'});
+                    res.send({ success: false, message: 'Authentication failed. Passwords did not match.' });
                 }
             });
         }
@@ -172,65 +172,19 @@ router.post('/editUser', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res) {
-    User.findOne({_id: req.body._id}).exec(
+    User.findOne({id: req.user.id}).exec(
         function (err, user) {
             if (err) throw err;
-            if (!user) {
-                res.send({success: false, message: 'Authentication failed. User not found.', status: 400});
-            } else {
-                if (req.body.gender != null)
-                    user.gender = req.body.gender;
-                if (req.body.address != null)
-                user.address = req.body.address;
-                if (req.body.avatar_url != null)
-                user.avatar_url = req.body.avatar_url;
-                if (req.body.fullName != null)
-                user.fullName = req.body.fullName;
-                if (req.body.password != null)
-                user.password = req.body.password;
-                if(req.body.birthDate != null)
-                    user.birthDate = req.body.birthDate;
+                if (req.body.email)
+                    delete req.body.email;
+                if (req.body.id)
+                    delete req.body.id;
+                for (var p in req.body) {
+                    user[p] = req.body[p];
+                }
                 user.save();
                 res.send({success: true, data: user, status: 200});
-            }
         });
 });
-
-router.post('/loginFacebookGoogle', function (req, res) {
-    User.findOne({id_fb_gg: req.body.id_fb_gg}).exec(
-        function (err, user) {
-            if (err) throw err;
-            if (!user) {
-                // Tạo một tài khoản mới với email đã cho
-                var newUser = new User({
-                    email: req.body.email,
-                    id_fb_gg : req.body.id_fb_gg,
-                    fullName: req.body.fullName,
-                    avatar_url: req.body.avatar_url,
-                    password: ""
-                });
-
-                // Attempt to save the user
-                newUser.save(function (err,user) {
-                    if (err) {
-                        return res.json({success: false, message: err});
-                    }else {
-                        var token = jwt.sign(user.toJSON(), config.secret, {
-                            expiresIn: 86400000*7 // in 7 days
-                        });
-                        res.json({success: true, token: 'JWT ' + token, _id: user._id});
-
-                    }
-                });
-            } else {
-                // Create token if the password matched and no error was thrown
-                var token = jwt.sign(user.toJSON(), config.secret, {
-                    expiresIn: 86400000*7 // in 7 days
-                });
-                res.json({success: true, token: 'JWT ' + token, _id: user._id});
-            }
-        });
-});
-// router.post('/updateUser',)
 
 module.exports = router;

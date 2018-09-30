@@ -14,8 +14,8 @@ mongoose.Promise = global.Promise;
 // if OPENSHIFT env variables are present, use the available connection info:
 // var   url = 'mongodb://heroku_sz1ztcq4:r6fu4qeasekm9ald9isic7imn@ds243812.mlab.com:43812/heroku_sz1ztcq4';
 //     url = 'mongodb://127.0.0.1:27017/yummy';
+// var url = 'mongodb://heroku_sz1ztcq4:r6fu4qeasekm9ald9isic7imn@ds243812.mlab.com:43812/heroku_sz1ztcq4';
 var url = 'mongodb://yummy:14520288Mh@ds046037.mlab.com:46037/yummy';
-
 mongoose.connect(url).then(
     () => {
         console.log('Kết nối DB thành công');
@@ -34,6 +34,7 @@ var postRoutes = require('./routes/postRoutes');
 var commentRoutes = require('./routes/commentRoutes');
 var reactionRoutes = require('./routes/reactionRoutes');
 var categoryRoutes = require('./routes/categoryRoutes');
+var characterRoutes = require('./routes/characterRoutes');
 
 var app = express();
 // var server = require("http").createServer(app);
@@ -78,6 +79,7 @@ app.use('/api/post',postRoutes);
 app.use('/api/post', commentRoutes);
 app.use('/api/post', reactionRoutes);
 app.use('/api/category', categoryRoutes);
+app.use('/api/character', characterRoutes);
 
 //catch unauthorized
 app.get('/unauthorized', function (req, res) {

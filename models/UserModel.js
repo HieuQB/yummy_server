@@ -29,17 +29,20 @@ var UserSchema = new Schema({
     address: {
         type: String,
     },
+    latlngAddress : {
+        type: {coordinates: {type: [Number], index: '2d', spherical: true}},
+    },
     gender: {
-        type: String,
+        type: Number,
     },
     birthday:{
-        type: String,
+        type: Date,
     },
     phone: {
         type: String,
     },
     myCharacter: {
-        type : String,
+         type : {type: Number, ref: 'Character'},
     },
     myStyle: {
         type : String,
