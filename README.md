@@ -1,3 +1,5 @@
+socket.broadcast.emit
+
 # yummy_server
 Vào link https://www.jdoodle.com/execute-nodejs-online
 Gõ 
