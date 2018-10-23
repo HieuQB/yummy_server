@@ -1,4 +1,4 @@
-google cloud platform
+google cloud platform : server của google miễn phí 1 năm mạnh hơn Heroku nhiều
 
 
 # yummy_server
