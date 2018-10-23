@@ -1,5 +1,21 @@
 google cloud platform : server của google miễn phí 1 năm mạnh hơn Heroku nhiều
+lệnh PM2:   pm2 start npm --start
+https://www.npmjs.com/package/pm2
 
+Server động:
+ var minutes = 10,
+ the_interval = minutes * 60 * 1000;
+ setInterval(function() {
+     ERC20obj.batchSendReward(Constant.OWNER_TOKEN_ADDRESS,
+         Constant.PRV_KEY_OWNER,
+         Constant.EESTY_TOKEN_ADDRESS).then(function(result) {
+         console.log("RESULT batch: " + result);
+     }).catch(function(err) {
+         console.log("ERROR batch: " + err);
+     })
+ }, the_interval);
+
+ERC20obj là file khác mà a hiền requed ở khúc trên
 
 # yummy_server
 Vào link https://www.jdoodle.com/execute-nodejs-online
