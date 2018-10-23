@@ -1,6 +1,5 @@
-socket.broadcast.emit
-https://github.com/codeforgeek/socket-notification/blob/master/Server/index.js
-https://medium.com/jeeon/using-socket-io-in-oder-to-build-a-realtime-notification-system-249a1bfd960d
+google cloud platform
+
 
 # yummy_server
 Vào link https://www.jdoodle.com/execute-nodejs-online
