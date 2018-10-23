@@ -16,6 +16,8 @@ Server động:
  }, the_interval);
 
 ERC20obj là file khác mà a hiền requed ở khúc trên
+Lệnh trên là cứ 10 phút sau khi start nó gọi 1 lần
+Nếu muốn cố định mấy giờ đó thì gọi lệnh 1 lần thì cứ 1 tiếng gọi 1 laanff và kiêm tra giờ hiện tại có bằng giơ cần gọi hay không?? Nếu đúng thì thực hiện lệnh gì đó :D 
 
 # yummy_server
 Vào link https://www.jdoodle.com/execute-nodejs-online
