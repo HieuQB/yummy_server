@@ -1,3 +1,5 @@
+https://console.cloud.google.com/freetrial/signup/1?_ga=2.28076415.-254986337.1540295522
+
 google cloud platform : server của google miễn phí 1 năm mạnh hơn Heroku nhiều
 lệnh PM2:   pm2 start npm --start
 https://www.npmjs.com/package/pm2
