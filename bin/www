@@ -7,7 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('server:server');
 var http = require('http');
-
+var RealServer = require('../routes/realServer');
+// var SocketSingleton = require('./socket');
 /**
  * Get port from environment and store in Express.
  */
@@ -28,6 +29,43 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+global.io = require('socket.io').listen(server);
+// global.io = SocketSingleton.configure(server);
+// var listUser = [];
+// var fs = require("fs");
+global.socket_list = {};
+io.sockets.on('connection', function (socket) {
+  // global.socket = socket;
+  console.log("Kết nối socket thành công");
+  // console.log(global.socket_list);
+
+  // //     var checkLogin = false;
+  socket.on('connect-server', function (data) {
+    var data_user = JSON.parse(data);
+    console.log("user id ket noi: " + data_user.mId);
+    global.socket_list[data_user.mId.toString()] = socket;
+    console.log("số lượng socket là: " + Object.keys(global.socket_list).length.toString())
+    //       //  if (listUser.indexOf(data) > -1) {
+    //       //    checkLogin =false;
+    //       //     console.log("Đã tồn tại user "+data);
+    //       //  } else {
+    //       //   listUser.push(data);
+
+    //       //  console.log(data + " vừa kết nối");
+    //       // //  io.sockets.emit("Danh-sach-dang-ky",{DanhSach : listUser});
+    //       //   checkLogin = true;
+  });
+  //       // //  socket.user = data;
+  //       socket.user_email = data_user.mEmail;
+  //       socket.emit("thongbao-user-"+socket.user_email,{mess : "xin chao"});
+});
+
+
+//     // socket.on('send_message', function (message) {
+//     //     sockets.emit('receiver_message', {data: socket.user + ": "+ message});
+// });
+// });
 
 /**
  * Normalize a port into a number, string, or false.
@@ -88,3 +126,18 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+var minutes = 30,
+  the_interval = minutes * 60 * 1000;
+setInterval(function () {
+  //  ERC20obj.batchSendReward(Constant.OWNER_TOKEN_ADDRESS,
+  //      Constant.PRV_KEY_OWNER,
+  //      Constant.EESTY_TOKEN_ADDRESS).then(function(result) {
+  //      console.log("RESULT batch: " + result);
+  //  }).catch(function(err) {
+  //      console.log("ERROR batch: " + err);
+  //  })
+  // console.log("1 phút trôi qua");
+  realServer = new RealServer();
+  realServer.setStatusPost();
+}, the_interval);

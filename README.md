@@ -1,26 +1,3 @@
-https://console.cloud.google.com/freetrial/signup/1?_ga=2.28076415.-254986337.1540295522
-
-google cloud platform : server của google miễn phí 1 năm mạnh hơn Heroku nhiều
-lệnh PM2:   pm2 start npm --start
-https://www.npmjs.com/package/pm2
-
-Server động:
- var minutes = 10,
- the_interval = minutes * 60 * 1000;
- setInterval(function() {
-     ERC20obj.batchSendReward(Constant.OWNER_TOKEN_ADDRESS,
-         Constant.PRV_KEY_OWNER,
-         Constant.EESTY_TOKEN_ADDRESS).then(function(result) {
-         console.log("RESULT batch: " + result);
-     }).catch(function(err) {
-         console.log("ERROR batch: " + err);
-     })
- }, the_interval);
-
-ERC20obj là file khác mà a hiền requed ở khúc trên
-Lệnh trên là cứ 10 phút sau khi start nó gọi 1 lần
-Nếu muốn cố định mấy giờ đó thì gọi lệnh 1 lần thì cứ 1 tiếng gọi 1 laanff và kiêm tra giờ hiện tại có bằng giơ cần gọi hay không?? Nếu đúng thì thực hiện lệnh gì đó :D 
-
 # yummy_server
 Vào link https://www.jdoodle.com/execute-nodejs-online
 Gõ 

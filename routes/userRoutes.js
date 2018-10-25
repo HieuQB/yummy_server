@@ -6,6 +6,7 @@ var config = require('../config/main');
 var passport = require('passport');
 const nodemailer = require('nodemailer');
 var voucher_codes = require('voucher-code-generator');
+var Post = require('../models/PostModel');
 
 function getNextSequenceValue(sequenceName) {
     var sequenceDocument = db.counters.findAndModify(
@@ -86,6 +87,8 @@ router.post('/login', function (req, res) {
                     var token = jwt.sign(user.toJSON(), config.secret, {
                         expiresIn: 604800 // in 7 days
                     });
+                    // global.io.sockets.emit("thongbao-user-"+user.email,{mess : "xin chao"});
+                    // global.socket.emit("thongbao-user-hieuit275@gmail.com",{mess : "xin chao"});
                     res.json({ success: true, token: 'JWT ' + token, expiresIn: Date.now() + 604800 * 1000, data: user });
                 } else {
                     res.send({ success: false, message: 'Authentication failed. Passwords did not match.' });
@@ -172,19 +175,50 @@ router.post('/editUser', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res) {
-    User.findOne({id: req.user.id}).exec(
+    User.findById(req.user._id).exec(
         function (err, user) {
             if (err) throw err;
-                if (req.body.email)
-                    delete req.body.email;
-                if (req.body.id)
-                    delete req.body.id;
-                for (var p in req.body) {
-                    user[p] = req.body[p];
-                }
-                user.save();
-                res.send({success: true, data: user, status: 200});
+            if (req.body.email)
+                delete req.body.email;
+            if (req.body.id)
+                delete req.body.id;
+            for (var p in req.body) {
+                user[p] = req.body[p];
+            }
+            user.save();
+            res.send({ success: true, data: user, status: 200 });
         });
+});
+
+// Lấy danh sách bài viết của từng user
+router.post('/listpostuser', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Post.find(
+        { 'is_active': true,'creator': { '_id': req.body.user_id } })
+        .limit(10).skip(req.body.page * 10)
+        .sort({ created_date: -1 })
+        .populate('creator')
+        .populate("categories")
+        .populate("interested_people")
+        .exec((err, meeting) => {
+            if (err) {
+                res.json({
+                    success: false,
+                    data: [],
+                    message: `Error is : ${err}`
+                });
+            } else {
+                res.json({
+
+                    success: true,
+                    data: meeting,
+                    message: "success"
+                });
+            }
+        });
+
 });
 
 module.exports = router;

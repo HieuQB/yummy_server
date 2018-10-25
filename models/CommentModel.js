@@ -21,6 +21,6 @@ var CommentSchema = new Schema({
     usePushEach: true,
     versionKey: false
 });
-CommentSchema.plugin(autoIncrement.plugin, {model: 'Comment', field: 'id'});
+CommentSchema.plugin(autoIncrement.plugin,'Comment');
 
 module.exports = mongoose.model('Comment', CommentSchema);

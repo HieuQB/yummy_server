@@ -42,7 +42,7 @@ var UserSchema = new Schema({
         type: String,
     },
     myCharacter: {
-         type : {type: Number, ref: 'Character'},
+         type : [{type: Number, ref: 'Character'}],
     },
     myStyle: {
         type : String,
@@ -56,10 +56,14 @@ var UserSchema = new Schema({
     targetFood: {
         type : String,
     },
+    trust_point: {
+        type: Number,
+        default: 50
+    }
 }, {
     versionKey: false
 });
-UserSchema.plugin(autoIncrement.plugin,{model: 'User', field: 'id'});
+UserSchema.plugin(autoIncrement.plugin,'User');
 
 // Saves the user's password hashed (plain text password storage is not good)
 UserSchema.pre('save', function (next) {

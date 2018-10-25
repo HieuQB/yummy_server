@@ -11,10 +11,6 @@ var autoIncrement = require('mongoose-auto-increment-fix');
 //Connect DB
 mongoose.Promise = global.Promise;
 
-// if OPENSHIFT env variables are present, use the available connection info:
-// var   url = 'mongodb://heroku_sz1ztcq4:r6fu4qeasekm9ald9isic7imn@ds243812.mlab.com:43812/heroku_sz1ztcq4';
-//     url = 'mongodb://127.0.0.1:27017/yummy';
-// var url = 'mongodb://heroku_sz1ztcq4:r6fu4qeasekm9ald9isic7imn@ds243812.mlab.com:43812/heroku_sz1ztcq4';
 var url = 'mongodb://yummy:14520288Mh@ds046037.mlab.com:46037/yummy';
 mongoose.connect(url).then(
     () => {
@@ -34,26 +30,12 @@ var postRoutes = require('./routes/postRoutes');
 var commentRoutes = require('./routes/commentRoutes');
 var reactionRoutes = require('./routes/reactionRoutes');
 var categoryRoutes = require('./routes/categoryRoutes');
+var notificationRoutes = require('./routes/notificationRoutes');
 var characterRoutes = require('./routes/characterRoutes');
+var meetingRoutes = require('./routes/meetingRoutes');
+var rateRoutes = require('./routes/rateRoutes');
 
 var app = express();
-// var server = require("http").createServer(app);
-// var socket = require('socket.io')(server);
-// var listUser = [];
-// socket.on('connection', function (socket) {
-//     console.log("co nguoi ket noi");
-//     socket.on('user_login', function () {
-//        if (listUser.indexOf(user_name) > -1) {
-//            return;
-//        }
-//        listUser.push(user_name);
-//        socket.user = user_name;
-//     });
-//
-//     socket.on('send_message', function (message) {
-//         sockets.emit('receiver_message', {data: socket.user + ": "+ message});
-//     });
-// });
 
 //initialize passport
 app.use(passport.initialize());
@@ -79,7 +61,10 @@ app.use('/api/post',postRoutes);
 app.use('/api/post', commentRoutes);
 app.use('/api/post', reactionRoutes);
 app.use('/api/category', categoryRoutes);
+app.use('/api/notification', notificationRoutes);
 app.use('/api/character', characterRoutes);
+app.use('/api/meeting', meetingRoutes);
+app.use('/api/rate', rateRoutes);
 
 //catch unauthorized
 app.get('/unauthorized', function (req, res) {

@@ -9,22 +9,22 @@ var PostSchema = new Schema({
     link: {type: String},
     image: {type: String},
     interested_people: [{type: Number, ref: 'User'}],
-    joined_people: [{type: Number, ref: 'User'}],
     categories: [{type: Number, ref: 'Category'}],
     is_active: {type: Boolean, default: true},
     content: {type: String},
     location: {coordinates: {type: [Number], index: '2d', spherical: true}},
     place: {type: String},
     comments: [{type: Number, ref: 'Comment'}],
-    time: {type: Date},
+    time: {type: Date,default: Date.now()},
     created_date: {type: Date, default: Date.now()},
-    modified_date: {type: Date, default: Date.now()}
+    modified_date: {type: Date, default: Date.now()},
+    expires_time: {type: Date, default: Date.now() + 604800 * 1000}
 }, {
     usePushEach: true,
     versionKey: false
 });
 
-PostSchema.plugin(autoIncrement.plugin, {model: 'Post', field: 'id'});
+PostSchema.plugin(autoIncrement.plugin, 'Post');
 
 
 function addCategoryToDatabase(categories, callback) {
@@ -33,8 +33,8 @@ function addCategoryToDatabase(categories, callback) {
         return callback(data);
 
     var count = categories.length;
-    categories.forEach((id) => {
-        var category = Category.findById(id).exec((err, category) => {
+    categories.forEach((_id) => {
+        var category = Category.findById(_id).exec((err, category) => {
             if (err) {
                 res.json({
                     success: false,

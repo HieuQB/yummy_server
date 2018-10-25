@@ -8,6 +8,6 @@ var CharacterSchema = new Schema({
 }, {
     versionKey: false
 });
-CharacterSchema.plugin(autoIncrement.plugin, {model: 'Character', field: 'id'});
+CharacterSchema.plugin(autoIncrement.plugin,'Character');
 	
 module.exports = mongoose.model('Character', CharacterSchema);

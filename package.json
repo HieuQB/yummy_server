@@ -18,10 +18,14 @@
     "mongoose": "^4.10.2",
     "mongoose-auto-increment-fix": "^5.0.2",
     "morgan": "~1.9.0",
+    "node-cmd": "^3.0.0",
     "nodemailer": "^4.6.4",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
+    "pm2-windows-service": "^0.2.1",
     "serve-favicon": "~2.4.5",
+    "socket.io": "*",
+    "socketio-file-upload": "^0.4.4",
     "voucher-code-generator": "^1.1.1"
   }
 }
