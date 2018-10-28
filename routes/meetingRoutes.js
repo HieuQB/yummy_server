@@ -152,7 +152,7 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                                         }).status(301);
                                     }
                                     if (global.socket != null) {
-                                        global.socket.emit("notify-user-" + noti.user_id.toString(), { data: noti });
+                                        global.socket.emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
                                     }
                                 });
                             }

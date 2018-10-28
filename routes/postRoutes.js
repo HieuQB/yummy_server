@@ -119,7 +119,7 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
             }
             if (global.socket_list[req.post.creator.id.toString()] != null) {
                 console.log("goi emit notify-user-" + req.post.creator.id.toString());
-                global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { data: noti });
+                global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
             } else {
                 console.log("socket null");
             }
@@ -145,7 +145,7 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
             }
             if (global.socket_list[req.post.creator.id.toString()] != null) {
                 console.log("goi emit notify-user-" + req.post.creator.id.toString());
-                global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { data: noti });
+                global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
             } else {
                 console.log("socket null");
             }
