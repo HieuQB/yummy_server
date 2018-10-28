@@ -81,7 +81,7 @@ router.post('/create_meeting', passport.authenticate('jwt', {
                                             }).status(301);
                                         }
                                         if (global.socket != null) {
-                                            global.socket.emit("notify-user-" + noti.user_id.toString(), { data_noti: noti });
+                                            global.socket.emit("notify-user-" + noti.user_id.toString(), { data: noti });
                                         }
                                     });
                                 });
@@ -152,7 +152,7 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                                         }).status(301);
                                     }
                                     if (global.socket != null) {
-                                        global.socket.emit("notify-user-" + noti.user_id.toString(), { data_noti: noti });
+                                        global.socket.emit("notify-user-" + noti.user_id.toString(), { data: noti });
                                     }
                                 });
                             }

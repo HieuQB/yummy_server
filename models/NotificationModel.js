@@ -1,5 +1,4 @@
 var User = require('./UserModel');
-var NotiData = require('./NotiDataModel');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var autoIncrement = require('mongoose-auto-increment-fix');
