@@ -10,7 +10,7 @@ var NotificationSchema = new Schema({
     // type: {type: Number,default:0},
     title: {type: String},
     created_date: {type: Date, default: Date.now()},
-    content: {type: Object, ref: "NotiData"},
+    content: {type: Object},
     image: {type: String, default: ""}
 }, {
     versionKey: false
