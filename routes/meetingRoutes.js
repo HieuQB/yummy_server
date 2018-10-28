@@ -67,10 +67,10 @@ router.post('/create_meeting', passport.authenticate('jwt', {
                                     // Create Notification in Database
                                     var newNoti = new Notification({
                                         user_id: people._id,
-                                        type: 2, // 2 = type Meeting
+                                        // type: 2, // 2 = type Meeting
                                         image: metting.creator.avatar,
-                                        content: content,
-                                        data: metting
+                                        title: content,
+                                        content: {type:2, data: metting}
                                     });
                                     // Attempt to save the user
                                     newNoti.save(function (err, noti) {
@@ -137,10 +137,10 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                                 // Create Notification in Database
                                 var newNoti = new Notification({
                                     user_id: people,
-                                    type: 2, // 2 = type Meeting
+                                    // type: 2, // 2 = type Meeting
                                     image: comment.creator.avatar,
-                                    content: comment.creator.fullName.toString() + " vừa bình luận meeting có mặt bạn!",
-                                    data: comment
+                                    title: comment.creator.fullName.toString() + " vừa bình luận meeting có mặt bạn!",
+                                    content: {type: 2, data: comment}
                                 });
 
                                 // Attempt to save the user

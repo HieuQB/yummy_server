@@ -104,10 +104,9 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
         // Create Notification in Database
         var newNoti = new Notification({
             user_id: req.post.creator.id,
-            type: 1, // 1 = type Post
-            content: interestedUser.fullName.toString() + " không còn quan tâm bài post của bạn nữa",
+            title: interestedUser.fullName.toString() + " không còn quan tâm bài post của bạn nữa",
             image: interestedUser.avatar,
-            data: req.post
+            content: {type: 1,data: req.post} // 1 = type Post
         });
 
         // Attempt to save the user
@@ -130,10 +129,10 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
         // Create Notification in Database
         var newNoti = new Notification({
             user_id: req.post.creator.id,
-            type: 1, // 1 = type Post
-            content:  req.user.fullName.toString() + " vừa quan tâm bài post của bạn",
+            // type: 1, // 1 = type Post
+            title:  req.user.fullName.toString() + " vừa quan tâm bài post của bạn",
             image: req.user.avatar,
-            data: req.post
+            content: {type: 1,data: req.post} 
         });
 
         // Attempt to save the user
