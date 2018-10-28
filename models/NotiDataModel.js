@@ -9,5 +9,5 @@ var NotiDataSchema = new Schema({
     versionKey: false
 });
 
-CategorySchema.plugin(autoIncrement.plugin, 'NotiData');
-module.exports  = mongoose.model('NotiData', CategorySchema);
+NotiDataSchema.plugin(autoIncrement.plugin, 'NotiData');
+module.exports  = mongoose.model('NotiData', NotiDataSchema);
