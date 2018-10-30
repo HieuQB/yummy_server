@@ -1,4 +1,7 @@
 # yummy_server
+
+Tìm hiểu cấu trúc blue bird của nodejs để quản lý không cho văng app.
+
 Vào link https://www.jdoodle.com/execute-nodejs-online
 Gõ 
 
