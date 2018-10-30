@@ -7,6 +7,8 @@ var passport = require('passport');
 const nodemailer = require('nodemailer');
 var voucher_codes = require('voucher-code-generator');
 var Post = require('../models/PostModel');
+var router = express.Router();
+var Rate = require('../models/RateModel');
 
 function getNextSequenceValue(sequenceName) {
     var sequenceDocument = db.counters.findAndModify(
@@ -154,6 +156,12 @@ router.get('/:userId', passport.authenticate('jwt', {
         if (err)
             res.status(500).send(err);
         else if (user) {
+            if (user.count_people_evaluate > 0) {
+                user.average_point = user.main_point / user.count_people_evaluate;
+            } else {
+                user.average_point = 0;
+            }
+            
             res.json({
                 success: true,
                 data: user,
@@ -219,6 +227,32 @@ router.post('/listpostuser', passport.authenticate('jwt', {
             }
         });
 
+});
+
+
+// API get danh sách đánh giá profile
+router.get('/:userId/list_rating', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Rate.find({people_evaluate:req.params.userId, type_rating:2}, (err, rates) => {
+        if (err)
+            res.status(500).send(err);
+        else if (rates) {
+            res.json({
+                success: true,
+                data: rates,
+                message: "successful"
+            });
+        }
+        else {
+            res.json({
+                success: false,
+                data: {},
+                message: "rates not found"
+            });
+        }
+    });
 });
 
 module.exports = router;

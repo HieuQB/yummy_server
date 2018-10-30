@@ -4,12 +4,13 @@ var autoIncrement = require('mongoose-auto-increment-fix');
 var User = require('./UserModel');
 
 var RateSchema = new Schema({
-    meeting: {type: Number, ref: 'Meeting', required: true},
+    meeting: {type: Number, ref: 'Meeting'},
     creator: {type: Number, ref: 'User',required: true},
     people_evaluate: {type: Number, ref: 'User',required: true},
-    created_date: {type: Date, default: Date.now()},
+    update_date: {type: Date, default: Date.now()},
     content: {type: String, required: true},
-    point: {type: Number,required: true, default: 5}
+    point: {type: Number,required: true, default: 5},
+    type_rating: {type: Number, default: 1} // 1 là rating meeting, 2 là rating profile
 }, {
     usePushEach: true,
     versionKey: false

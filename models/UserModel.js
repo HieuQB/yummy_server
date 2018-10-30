@@ -59,6 +59,14 @@ var UserSchema = new Schema({
     trust_point: {
         type: Number,
         default: 50
+    },
+    main_point:{
+        type: Number,
+        default: 0 
+    },
+    count_people_evaluate: {
+        type: Number,
+        default:0
     }
 }, {
     versionKey: false
