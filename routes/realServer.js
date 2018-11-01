@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Post = require('../models/PostModel');
-
+var Meeting = require('../models/MeetingModel');
 class RealServer {
 
     constructor() {
@@ -21,6 +21,30 @@ class RealServer {
                 console.log(posts);
                 for (let item of posts) {
                     item.is_active = false;
+                    item.save((err) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    setStatusMeeting () {
+        Meeting.find(
+            { 'is_finished': false, $where: function() {
+                return (this.time + 60*60*6*1000) < Date.now();
+            }}
+        ).exec((err, meetings) => {
+            if (err) {
+                console.log(err);
+            } else if(!meetings) {
+                console.log("Meeting not found");
+            } else {
+                console.log(meetings);
+                for (let item of meetings) {
+                    item.is_finished = true;
                     item.save((err) => {
                         if (err) {
                             console.log(err);

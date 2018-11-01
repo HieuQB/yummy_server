@@ -100,7 +100,6 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
     });
 });
 
-
 // thêm rating cho profile
 router.post('/rating_people', passport.authenticate('jwt', {
     session: false,
@@ -117,7 +116,7 @@ router.post('/rating_people', passport.authenticate('jwt', {
         if (rating.length > 0) {
             return res.json({
                 success: false,
-                data: rating,
+                data: [],
                 message: "da ton tai rating nay",
                 status: 404
             });
@@ -311,6 +310,7 @@ router.delete('/:rateId', passport.authenticate('jwt', {
         }
     });
 });
+
 
 
 

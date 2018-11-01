@@ -209,6 +209,31 @@ router.get('/', passport.authenticate('jwt', {
 
 });
 
+// Lấy danh sách meeting cho user tùy theo trạng thái
+router.post('/list_status', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Meeting.find(
+        { 'joined_people': { $in: [req.user] }, is_finished: req.body.status }
+    ).populate("joined_people").populate("comments")
+        .exec((err, meeting) => {
+            if (err) {
+                res.json({
+                    success: false,
+                    data: [],
+                    message: `Error is : ${err}`
+                });
+            } else {
+                res.json({
+                    success: true,
+                    data: meeting,
+                    message: "success"
+                });
+            }
+        });
+});
+
 // Lấy danh sách bình luận của meeting
 router.get('/:meetingId/list_comment', passport.authenticate('jwt', {
     session: false,

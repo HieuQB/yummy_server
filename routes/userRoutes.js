@@ -255,4 +255,35 @@ router.get('/:userId/list_rating', passport.authenticate('jwt', {
     });
 });
 
+
+// check đã rating hay chưa
+router.post('/is_had_rating', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Rate.find({ creator: req.user, type_rating: 2, people_evaluate: req.body.people_evaluate }).exec((err, rating) => {
+        if (err) {
+            return res.json({
+                success: false,
+                data: {},
+                message: `error is : ${err}`
+            });
+        }
+        if (rating.length > 0) {
+            return res.json({
+                success: false,
+                data: rating,
+                message: "da tung rating cho nguoi nay",
+                status: 404
+            });
+        } else {
+            return res.json({
+                success: true,
+                data: [],
+                message: "chưa rating bao giờ",
+                status: 404
+            });
+        }
+    });
+});
 module.exports = router;
