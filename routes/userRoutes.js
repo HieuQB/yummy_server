@@ -161,7 +161,7 @@ router.get('/:userId', passport.authenticate('jwt', {
             } else {
                 user.average_point = 0;
             }
-            
+
             res.json({
                 success: true,
                 data: user,
@@ -204,7 +204,7 @@ router.post('/listpostuser', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     Post.find(
-        { 'is_active': true,'creator': { '_id': req.body.user_id } })
+        { 'is_active': true, 'creator': { '_id': req.body.user_id } })
         .limit(10).skip(req.body.page * 10)
         .sort({ created_date: -1 })
         .populate('creator')
@@ -235,7 +235,7 @@ router.get('/:userId/list_rating', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Rate.find({people_evaluate:req.params.userId, type_rating:2}, (err, rates) => {
+    Rate.find({ people_evaluate: req.params.userId, type_rating: 2 }, (err, rates) => {
         if (err)
             res.status(500).send(err);
         else if (rates) {
@@ -261,29 +261,38 @@ router.post('/is_had_rating', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Rate.find({ creator: req.user, type_rating: 2, people_evaluate: req.body.people_evaluate }).exec((err, rating) => {
-        if (err) {
-            return res.json({
-                success: false,
-                data: {},
-                message: `error is : ${err}`
-            });
-        }
-        if (rating.length > 0) {
-            return res.json({
-                success: false,
-                data: rating,
-                message: "da tung rating cho nguoi nay",
-                status: 404
-            });
-        } else {
-            return res.json({
-                success: true,
-                data: [],
-                message: "chưa rating bao giờ",
-                status: 404
-            });
-        }
-    });
+    if (req.user._id == req.body.people_evaluate) {
+        return res.json({
+            success: false,
+            data: {},
+            message: "error: craetor va people_evaluate bang nhau",
+            status: 404
+        });
+    } else {
+        Rate.find({ creator: req.user, type_rating: 2, people_evaluate: req.body.people_evaluate }).exec((err, rating) => {
+            if (err) {
+                return res.json({
+                    success: false,
+                    data: {},
+                    message: `error is : ${err}`
+                });
+            }
+            if (rating.length > 0) {
+                return res.json({
+                    success: false,
+                    data: rating,
+                    message: "da tung rating cho nguoi nay",
+                    status: 404
+                });
+            } else {
+                return res.json({
+                    success: true,
+                    data: [],
+                    message: "chưa rating bao giờ",
+                    status: 200
+                });
+            }
+        });
+    }
 });
 module.exports = router;
