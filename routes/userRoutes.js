@@ -235,7 +235,7 @@ router.get('/:userId/list_rating', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Rate.find({ people_evaluate: req.params.userId, type_rating: 2 }, (err, rates) => {
+    Rate.find({ people_evaluate: req.params.userId, type_rating: 2 }).populate('creator').exec((err, rates) => {
         if (err)
             res.status(500).send(err);
         else if (rates) {
@@ -261,7 +261,7 @@ router.post('/is_had_rating', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    if (req.user._id == req.body.people_evaluate) {
+    if (req.user._id === req.body.people_evaluate) {
         return res.json({
             success: false,
             data: {},

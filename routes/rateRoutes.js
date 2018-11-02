@@ -208,14 +208,6 @@ router.use('/:rateId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    if (req.user._id == req.body.people_evaluate) {
-        return res.json({
-            success: false,
-            data: {},
-            message: "error: craetor va people_evaluate bang nhau",
-            status: 404
-        });
-    } else {
         Rate.findById(req.params.rateId).exec((err, rating) => {
             if (err)
                 res.json({
@@ -234,18 +226,18 @@ router.use('/:rateId', passport.authenticate('jwt', {
                 });
             }
         });
-    }
 });
 
 router.put('/:rateId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    if (req.user._id == req.body.people_evaluate) {
+    console.log(req.rating);
+    if (req.user._id != req.rating.creator) {
         return res.json({
             success: false,
             data: {},
-            message: "error: craetor va people_evaluate bang nhau",
+            message: "error: ban khong co quyen cap nhat",
             status: 404
         });
     } else {
@@ -304,57 +296,75 @@ router.delete('/:rateId', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
 
-    if (req.user._id == req.body.people_evaluate) {
-        return res.json({
-            success: false,
-            data: {},
-            message: "error: craetor va people_evaluate bang nhau",
-            status: 404
-        });
-    } else {
-        User.findById(req.rating.people_evaluate).exec((err, user) => {
-            if (err) {
+    Rate.findById(req.params.rateId).exec((err, rating) => {
+        if (err)
+            res.json({
+                success: false,
+                data: {},
+                message: `Error: ${err}`
+            });
+        else if (rating) {
+            if (req.user != rating.creator) {
                 return res.json({
                     success: false,
                     data: {},
-                    message: `error is : ${err}`
+                    message: "error: ban khong co quyen xoa",
+                    status: 404
                 });
-            }
-            if (user) {
-                user.main_point -= req.rating.point;
-                user.count_people_evaluate--;
-                user.save(function (err, userlast) {
+            } else {
+                User.findById(req.rating.people_evaluate).exec((err, user) => {
                     if (err) {
                         return res.json({
                             success: false,
                             data: {},
                             message: `error is : ${err}`
                         });
-                    } else {
-                        req.rating.remove((err) => {
-                            if (err)
-                                res.json({
-                                    success: false,
-                                    message: `Error: ${err}`
-                                });
-                            else {
+                    }
+                    if (user) {
+                        user.main_point -= req.rating.point;
+                        user.count_people_evaluate--;
+                        user.save(function (err, userlast) {
+                            if (err) {
                                 return res.json({
-                                    success: true,
-                                    message: "delete rating success"
+                                    success: false,
+                                    data: {},
+                                    message: `error is : ${err}`
+                                });
+                            } else {
+                                req.rating.remove((err) => {
+                                    if (err)
+                                        res.json({
+                                            success: false,
+                                            message: `Error: ${err}`
+                                        });
+                                    else {
+                                        return res.json({
+                                            success: true,
+                                            message: "delete rating success"
+                                        });
+                                    }
                                 });
                             }
                         });
+                    } else {
+                        return res.json({
+                            success: false,
+                            message: 'user not found',
+                            status: 500
+                        });
                     }
                 });
-            } else {
-                return res.json({
-                    success: false,
-                    message: 'user not found',
-                    status: 500
-                });
             }
-        });
-    }
+        } else {
+            res.json({
+                success: false,
+                data: {},
+                message: "rating not found."
+            });
+        }
+    });
+    
+    
 });
 
 
