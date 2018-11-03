@@ -188,10 +188,11 @@ router.get('/:page', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
+    var page = req.params.page;
     Meeting.find(
         { 'joined_people': { $in: [req.user] } }
     ).populate("joined_people").populate("comments")
-    .limit(10).skip(red.params.page * 10)
+    .limit(10).skip(page * 10)
         .exec((err, meeting) => {
             if (err) {
                 res.json({
