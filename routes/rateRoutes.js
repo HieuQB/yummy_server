@@ -367,7 +367,4 @@ router.delete('/:rateId', passport.authenticate('jwt', {
     
 });
 
-
-
-
 module.exports = router;

@@ -5,11 +5,12 @@ var passport = require('passport');
 
 
 // Lấy danh sách notification 
-router.get('/', passport.authenticate('jwt', {
+router.get('/:page', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     Notification.find({user_id:req.user._id})
+    .limit(10).skip(red.params.page * 10)
     .sort({ created_date: -1 })
     .exec((err, noti) => {
         if (err) {

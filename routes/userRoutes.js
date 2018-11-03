@@ -161,7 +161,6 @@ router.get('/:userId', passport.authenticate('jwt', {
             } else {
                 user.average_point = 0;
             }
-
             res.json({
                 success: true,
                 data: user,
@@ -204,7 +203,8 @@ router.post('/listpostuser', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     Post.find(
-        { 'is_active': true, 'creator': { '_id': req.body.user_id } })
+        // { 'is_active': true, 'creator': { '_id': req.body.user_id } })
+        {  'creator': { '_id': req.body.user_id } })
         .limit(10).skip(req.body.page * 10)
         .sort({ created_date: -1 })
         .populate('creator')
@@ -295,4 +295,5 @@ router.post('/is_had_rating', passport.authenticate('jwt', {
         });
     }
 });
+
 module.exports = router;

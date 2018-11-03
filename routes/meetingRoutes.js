@@ -5,6 +5,7 @@ var Notification = require('../models/NotificationModel');
 var Meeting = require('../models/MeetingModel');
 var Comment = require('../models/CommentModel');
 var Post = require('../models/PostModel');
+var Rate = require('../models/RateModel');
 
 //  Tạo cuộc hẹn mới
 router.post('/create_meeting', passport.authenticate('jwt', {
@@ -183,13 +184,14 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
 });
 
 // Lấy danh sách meeting cho user 
-router.get('/', passport.authenticate('jwt', {
+router.get('/:page', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     Meeting.find(
         { 'joined_people': { $in: [req.user] } }
     ).populate("joined_people").populate("comments")
+    .limit(10).skip(red.params.page * 10)
         .exec((err, meeting) => {
             if (err) {
                 res.json({
@@ -216,6 +218,31 @@ router.post('/list_status', passport.authenticate('jwt', {
 }), function (req, res, next) {
     Meeting.find(
         { 'joined_people': { $in: [req.user] }, is_finished: req.body.status }
+    ).populate("joined_people").populate("comments")
+        .exec((err, meeting) => {
+            if (err) {
+                res.json({
+                    success: false,
+                    data: [],
+                    message: `Error is : ${err}`
+                });
+            } else {
+                res.json({
+                    success: true,
+                    data: meeting,
+                    message: "success"
+                });
+            }
+        });
+});
+
+// Lấy danh sách meeting cho user bất kì tùy theo trạng thái
+router.post('/:userId/list_status', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Meeting.find(
+        { 'joined_people': { $in: [req.params.userId] }, is_finished: req.body.status }
     ).populate("joined_people").populate("comments")
         .exec((err, meeting) => {
             if (err) {
@@ -297,6 +324,31 @@ router.get('/:meetingId', passport.authenticate('jwt', {
                 });
             }
         });
+});
+
+// API get list rating của meeting
+router.get('/:meetingID/list_rating', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Rate.find({ meeting: req.params.meetingID, type_rating: 1 }).populate('creator').exec((err, rates) => {
+        if (err)
+            res.status(500).send(err);
+        else if (rates) {
+            res.json({
+                success: true,
+                data: rates,
+                message: "successful"
+            });
+        }
+        else {
+            res.json({
+                success: false,
+                data: {},
+                message: "rates not found"
+            });
+        }
+    });
 });
 
 module.exports = router;

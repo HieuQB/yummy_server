@@ -56,6 +56,13 @@ io.sockets.on('connection', function (socket) {
     //       // //  io.sockets.emit("Danh-sach-dang-ky",{DanhSach : listUser});
     //       //   checkLogin = true;
   });
+
+  socket.on('disconnect', function () {
+    console.log('');
+    // socket.emit('disconnected');
+    // online = online - 1;
+
+  });
   //       // //  socket.user = data;
   //       socket.user_email = data_user.mEmail;
   //       socket.emit("thongbao-user-"+socket.user_email,{mess : "xin chao"});
@@ -140,4 +147,5 @@ setInterval(function () {
   // console.log("1 phút trôi qua");
   realServer = new RealServer();
   realServer.setStatusPost();
+  realServer.setStatusMeeting();
 }, the_interval);
