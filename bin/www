@@ -57,7 +57,7 @@ io.sockets.on('connection', function (socket) {
 
     // kiểm tra uesr có trong danh sách waiting noti hay không
     // nếu có thì gửi lại noti cho nó
-    WaitingNoti.findOneAndDelete({userID: data_user.mId})
+    WaitingNoti.find({userID: data_user.mId})
     .populate('dataNoti')
     .exec((err,waitings) => {
       if (err) {
@@ -70,7 +70,9 @@ io.sockets.on('connection', function (socket) {
             console.log("goi emit notify-user-" + item_wating.userID.toString());
             console.log("aaaaaaaaaaaaaaaaaaaaaa"+ item_wating.dataNoti);
             global.socket_list[item_wating.userID.toString()].emit("notify-user-" + item_wating.userID.toString(), { nomal: item_wating.dataNoti });
-            // WaitingNoti.deleteOne({"_id": item_wating._id});
+            item_wating.remove((err) => {
+              console.log(err);
+            });
           } else {
             console.log("socket null");
            }
@@ -83,7 +85,9 @@ io.sockets.on('connection', function (socket) {
     console.log('co thang offline');
     console.log(data_user);
     // global.socket_list.detele(data_user.mId.toString());
-    delete global.socket_list[data_user.mId.toString()];
+    if(data_user) {
+      delete global.socket_list[data_user.mId.toString()];
+    }
     console.log(global.socket_list);
     // socket.emit('disconnected');
     // online = online - 1;
