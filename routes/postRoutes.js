@@ -206,72 +206,66 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
     })
 });
 
-// Get list bài viết active mà đã quan tâm
-router.get('/:page/interested', passport.authenticate('jwt', {
+// Get list bài viết active mà theo status quan tâm hoặc chưa quan tâm
+router.post('/:page/interested', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     var page = req.params.page;
-    Post.find({
-        // Điều kiện lọc
-        'is_active': true,
-        'interested_people': { $in: [req.user] }
-    })
-        .limit(10).skip(page * 10)
-        .sort({ created_date: -1 })
-        .populate('creator')
-        .populate("categories")
-        .populate("interested_people")
-        .exec((err, posts) => {
-            if (err) {
-                res.json({
-                    success: false,
-                    data: [],
-                    message: `Error is : ${err}`
-                });
-            } else {
-                res.json({
-                    success: true,
-                    data: posts,
-                    message: "success"
-                });
-            }
-        });
+    if (req.body.flag == true) {
+        Post.find({
+            // Điều kiện lọc
+            'is_active': true,
+            'interested_people': { $in: [req.user] }
+        })
+            .limit(10).skip(page * 10)
+            .sort({ created_date: -1 })
+            .populate('creator')
+            .populate("categories")
+            .populate("interested_people")
+            .exec((err, posts) => {
+                if (err) {
+                    res.json({
+                        success: false,
+                        data: [],
+                        message: `Error is : ${err}`
+                    });
+                } else {
+                    res.json({
+                        success: true,
+                        data: posts,
+                        message: "success"
+                    });
+                }
+            });
+    } else {
+        Post.find({
+            // Điều kiện lọc
+            'is_active': true,
+            'interested_people': { $nin: [req.user] }
+        })
+            .limit(10).skip(page * 10)
+            .sort({ created_date: -1 })
+            .populate('creator')
+            .populate("categories")
+            .populate("interested_people")
+            .exec((err, posts) => {
+                if (err) {
+                    res.json({
+                        success: false,
+                        data: [],
+                        message: `Error is : ${err}`
+                    });
+                } else {
+                    res.json({
+                        success: true,
+                        data: posts,
+                        message: "success"
+                    });
+                }
+            });
+    }
 });
-
-// Get list bài viết active mà chưa quan tâm
-router.get('/:page/not_interested', passport.authenticate('jwt', {
-    session: false,
-    failureRedirect: '/unauthorized'
-}), function (req, res, next) {
-    var page = req.params.page;
-    Post.find({
-        // Điều kiện lọc
-        'is_active': true,
-        'interested_people': { $nin: [req.user] }
-    })
-        .limit(10).skip(page * 10)
-        .sort({ created_date: -1 })
-        .populate('creator')
-        .populate("categories")
-        .populate("interested_people")
-        .exec((err, posts) => {
-            if (err) {
-                res.json({
-                    success: false,
-                    data: [],
-                    message: `Error is : ${err}`
-                });
-            } else {
-                res.json({
-                    success: true,
-                    data: posts,
-                    message: "success"
-                });
-            }
-        });
-});
-
 
 router.get('/', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
     var page = req.params.page;
