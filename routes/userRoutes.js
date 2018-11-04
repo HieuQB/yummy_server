@@ -280,14 +280,12 @@ router.post('/is_had_rating', passport.authenticate('jwt', {
             if (rating.length > 0) {
                 return res.json({
                     success: false,
-                    data: rating,
                     message: "da tung rating cho nguoi nay",
                     status: 404
                 });
             } else {
                 return res.json({
                     success: true,
-                    data: [],
                     message: "chưa rating bao giờ",
                     status: 200
                 });
