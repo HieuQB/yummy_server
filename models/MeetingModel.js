@@ -14,7 +14,8 @@ var MeetingSchema = new Schema({
     location: {coordinates: {type: [Number], index: '2d', spherical: true}},
     comments: [{type: Number, ref: 'Comment'}],
     place: {type: String, default:""},
-    time: {type: Date,default: Date.now()}
+    time: {type: Date,default: Date.now()},
+    is_send_noti: {type: Boolean, default:false}
 }, {
     usePushEach: true,
     versionKey: false

@@ -236,7 +236,6 @@ router.get('/:page', passport.authenticate('jwt', {
                 });
             } else {
                 res.json({
-
                     success: true,
                     data: meeting,
                     message: "success"
@@ -287,6 +286,31 @@ router.post('/:userId/list_status', passport.authenticate('jwt', {
                     message: `Error is : ${err}`
                 });
             } else {
+                // var point_average = 0;
+                // meeting.forEach(function (item_meeting) {
+
+                //     Rate.find({
+                //         meeting: item_meeting._id,
+                //         type_rating: 1,
+                //         people_evaluate: req.params.userId
+                //     })
+                //         .exec((err, rating) => {
+                //             if (err) {
+                //                 console.log(err);
+                //             }
+                //             if (!rating) {
+                //                 console.log("rating not found");
+                //             } else {
+                //                 rating.forEach(function (item_rating) {
+                //                     point_average += item_rating.point;
+                //                 });
+                //                 item_meeting.point_average = point_average;
+                //                 item_meeting.save();
+                //                 console.log(item_meeting);
+                //                 // console.log(rating);
+                //             }
+                //         });
+                // });
                 res.json({
                     success: true,
                     data: meeting,
@@ -362,11 +386,12 @@ router.get('/:meetingId', passport.authenticate('jwt', {
 });
 
 // API get list rating của meeting
-router.get('/:meetingID/list_rating', passport.authenticate('jwt', {
+router.get('/:meetingID/list_rating/:userId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Rate.find({ meeting: req.params.meetingID, type_rating: 1 }).populate('creator').exec((err, rates) => {
+
+    Rate.find({ meeting: req.params.meetingID, type_rating: 1 , people_evaluate: req.params.userId}).populate('creator').exec((err, rates) => {
         if (err)
             res.status(500).send(err);
         else if (rates) {
@@ -384,6 +409,111 @@ router.get('/:meetingID/list_rating', passport.authenticate('jwt', {
             });
         }
     });
+});
+
+
+// Cho điểm mặc định khi không rating
+router.post('/rating_meeting', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+
+    if (req.user._id == req.body.people_evaluate) {
+        return res.json({
+            success: false,
+            data: {},
+            message: "error: craetor va people_evaluate bang nhau",
+            status: 404
+        });
+    } else {
+        const newRate = new Rate(req.body);
+        newRate.creator = req.user;
+        newRate.type_rating = 1;
+        console.log(newRate)
+        Meeting.findById(newRate.meeting)
+            .exec((err, meeting) => {
+                if (err)
+                    res.json({
+                        success: false,
+                        message: `Error: ${err}`
+                    });
+                else if (meeting) {
+                    if (meeting.joined_people.indexOf(newRate.creator) > -1) {
+                        //In the array!
+                    } else {
+                        //Not in the array
+                        return res.json({
+                            success: false,
+                            data: {},
+                            message: "user not in this meeting",
+                            status: 404
+                        });
+                    }
+                }
+                else {
+                    return res.json({
+                        success: false,
+                        data: {},
+                        message: "meeting not found",
+                        status: 404
+                    });
+                }
+            });
+        if (newRate.point < 0 || newRate.point > 10) {
+            return res.json({
+                success: false,
+                data: {},
+                message: "point not in 1 to 10",
+                status: 404
+            });
+        }
+        newRate.save(function (err, rate) {
+            if (err) {
+                res.json({
+                    success: false,
+                    data: {},
+                    message: `error is : ${err}`
+                });
+            }
+            else {
+                User.findById(rate.people_evaluate).exec((err, user) => {
+                    if (err) {
+                        return res.json({
+                            success: false,
+                            data: {},
+                            message: `error is : ${err}`
+                        });
+                    }
+                    if (user) {
+                        user.trust_point += rate.point;
+                        user.save(function (err, userlast) {
+                            if (err) {
+                                res.json({
+                                    success: false,
+                                    data: {},
+                                    message: `error is : ${err}`
+                                });
+                            } else {
+                                console.log(userlast);
+                            }
+                        });
+                    } else {
+                        return res.json({
+                            success: false,
+                            message: 'user not found',
+                            status: 500
+                        });
+                    }
+                });
+                return res.json({
+                    success: true,
+                    data: rate,
+                    message: "success upload new rate meeting",
+                    status: 200
+                })
+            }
+        });
+    }
 });
 
 module.exports = router;
