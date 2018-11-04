@@ -8,6 +8,7 @@ var geodist = require('geodist');
 var Notification = require('../models/NotificationModel');
 var Meeting = require('../models/MeetingModel');
 var Comment = require('../models/CommentModel');
+var WaitingNoti = require('../models/WaitingNotiModel');
 
 router.post('/', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
     var categories = req.body.categories;
@@ -106,7 +107,7 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
             user_id: req.post.creator.id,
             title: interestedUser.fullName.toString() + " không còn quan tâm bài post của bạn nữa",
             image: interestedUser.avatar,
-            content: {type: 1,data: req.post} // 1 = type Post
+            content: { type: 1, data: req.post } // 1 = type Post
         });
 
         // Attempt to save the user
@@ -117,11 +118,29 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
                     message: err
                 }).status(301);
             }
-            if (global.socket_list[req.post.creator.id.toString()] != null) {
-                console.log("goi emit notify-user-" + req.post.creator.id.toString());
-                global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
+            // if (global.socket_list[req.post.creator.id.toString()] != null) {
+            //     console.log("goi emit notify-user-" + req.post.creator.id.toString());
+            //     global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
+            // } else {
+            //     console.log("socket null");
+            // }
+            if (global.socket_list[noti.user_id.toString()] != null) {
+                console.log("goi emit notify-user-" + noti.user_id.toString());
+                global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
             } else {
                 console.log("socket null");
+                newWaiting = new WaitingNoti({
+                    userID: noti.user_id,
+                    dataNoti: noti
+                });
+
+                newWaiting.save(function (err, WaitingNoti) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("THÊM waiting Noti: " + WaitingNoti);
+                    }
+                });
             }
         });
     } else {
@@ -130,9 +149,9 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
         var newNoti = new Notification({
             user_id: req.post.creator.id,
             // type: 1, // 1 = type Post
-            title:  req.user.fullName.toString() + " vừa quan tâm bài post của bạn",
+            title: req.user.fullName.toString() + " vừa quan tâm bài post của bạn",
             image: req.user.avatar,
-            content: {type: 1,data: req.post} 
+            content: { type: 1, data: req.post }
         });
 
         // Attempt to save the user
@@ -143,11 +162,29 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
                     message: err
                 }).status(301);
             }
-            if (global.socket_list[req.post.creator.id.toString()] != null) {
-                console.log("goi emit notify-user-" + req.post.creator.id.toString());
-                global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
+            // if (global.socket_list[req.post.creator.id.toString()] != null) {
+            //     console.log("goi emit notify-user-" + req.post.creator.id.toString());
+            //     global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
+            // } else {
+            //     console.log("socket null");
+            // }
+            if (global.socket_list[noti.user_id.toString()] != null) {
+                console.log("goi emit notify-user-" + noti.user_id.toString());
+                global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
             } else {
                 console.log("socket null");
+                newWaiting = new WaitingNoti({
+                    userID: noti.user_id,
+                    dataNoti: noti
+                });
+
+                newWaiting.save(function (err, WaitingNoti) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("THÊM waiting Noti: " + WaitingNoti);
+                    }
+                });
             }
         });
     }
@@ -178,28 +215,28 @@ router.get('/:page/interested', passport.authenticate('jwt', {
     Post.find({
         // Điều kiện lọc
         'is_active': true,
-       'interested_people': { $in: [req.user] } 
+        'interested_people': { $in: [req.user] }
     })
-    .limit(10).skip(page * 10)
+        .limit(10).skip(page * 10)
         .sort({ created_date: -1 })
         .populate('creator')
         .populate("categories")
         .populate("interested_people")
         .exec((err, posts) => {
-        if (err) {
-            res.json({
-                success: false,
-                data: [],
-                message: `Error is : ${err}`
-            });
-        } else {
-            res.json({
-                success: true,
-                data: posts,
-                message: "success"
-            });
-        }
-    });
+            if (err) {
+                res.json({
+                    success: false,
+                    data: [],
+                    message: `Error is : ${err}`
+                });
+            } else {
+                res.json({
+                    success: true,
+                    data: posts,
+                    message: "success"
+                });
+            }
+        });
 });
 
 // Get list bài viết active mà chưa quan tâm
@@ -211,28 +248,28 @@ router.get('/:page/not_interested', passport.authenticate('jwt', {
     Post.find({
         // Điều kiện lọc
         'is_active': true,
-        'interested_people': { $nin: [req.user] } 
+        'interested_people': { $nin: [req.user] }
     })
-    .limit(10).skip(page * 10)
+        .limit(10).skip(page * 10)
         .sort({ created_date: -1 })
         .populate('creator')
         .populate("categories")
         .populate("interested_people")
         .exec((err, posts) => {
-        if (err) {
-            res.json({
-                success: false,
-                data: [],
-                message: `Error is : ${err}`
-            });
-        } else {
-            res.json({
-                success: true,
-                data: posts,
-                message: "success"
-            });
-        }
-    });
+            if (err) {
+                res.json({
+                    success: false,
+                    data: [],
+                    message: `Error is : ${err}`
+                });
+            } else {
+                res.json({
+                    success: true,
+                    data: posts,
+                    message: "success"
+                });
+            }
+        });
 });
 
 
