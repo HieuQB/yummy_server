@@ -70,6 +70,7 @@ io.sockets.on('connection', function (socket) {
             console.log("goi emit notify-user-" + item_wating.userID.toString());
             console.log("aaaaaaaaaaaaaaaaaaaaaa"+ item_wating.dataNoti);
             global.socket_list[item_wating.userID.toString()].emit("notify-user-" + item_wating.userID.toString(), { nomal: item_wating.dataNoti });
+            WaitingNoti.deleteOne({"_id": item_wating._id});
           } else {
             console.log("socket null");
            }
