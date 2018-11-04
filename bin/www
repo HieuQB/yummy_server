@@ -57,7 +57,9 @@ io.sockets.on('connection', function (socket) {
 
     // kiểm tra uesr có trong danh sách waiting noti hay không
     // nếu có thì gửi lại noti cho nó
-    WaitingNoti.find({userID: data_user.mId}).exec((err,waitings) => {
+    WaitingNoti.find({userID: data_user.mId})
+    .populate('dataNoti')
+    .exec((err,waitings) => {
       if (err) {
         console.log(err);
       }else if(waitings.length == 0) {
@@ -66,6 +68,7 @@ io.sockets.on('connection', function (socket) {
         waitings.forEach(function (item_wating) {
           if (global.socket_list[item_wating.userID.toString()] != null) {
             console.log("goi emit notify-user-" + item_wating.userID.toString());
+            console.log("aaaaaaaaaaaaaaaaaaaaaa"+ item_wating.dataNoti);
             global.socket_list[item_wating.userID.toString()].emit("notify-user-" + item_wating.userID.toString(), { nomal: item_wating.dataNoti });
           } else {
             console.log("socket null");
