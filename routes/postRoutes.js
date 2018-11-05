@@ -207,7 +207,7 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
 });
 
 // Get list bài viết active mà theo status quan tâm hoặc chưa quan tâm
-router.post('/:page/interested_list', passport.authenticate('jwt', {
+router.post('/:page/list', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
