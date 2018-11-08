@@ -1,5 +1,12 @@
 # yummy_server
 
+API tìm kiếm nên xử lí như nào ? người đang online, địa điểm gần hay xa (so sánh 2 address của 2 thằng)
+Đưa hình ảnh lên server
+#API list meeting thì mỗi cục data trả thêm điểm trung bình đánh giá meeting cho user được chọn
+(Chưa làm đc)
+Gởi thông báo gợi ý cho người dùng khi có bài viết phù hợp vừa đc đăng lên
+
+
 Tìm hiểu cấu trúc blue bird của nodejs để quản lý không cho văng app.
 
 Vào link https://www.jdoodle.com/execute-nodejs-online
