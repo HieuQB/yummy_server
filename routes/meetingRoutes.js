@@ -218,7 +218,7 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
 });
 
 // Lấy danh sách meeting cho user 
-router.get('/:page', passport.authenticate('jwt', {
+router.get('/list/:page', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {

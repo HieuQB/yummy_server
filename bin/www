@@ -164,7 +164,7 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-var minutes = 30,
+var minutes = 1,
   the_interval = minutes * 60 * 1000;
 setInterval(function () {
   //  ERC20obj.batchSendReward(Constant.OWNER_TOKEN_ADDRESS,
@@ -178,4 +178,6 @@ setInterval(function () {
   realServer = new RealServer();
   realServer.setStatusPost();
   realServer.setStatusMeeting();
+  realServer.sendNotiPostExpire();
+  realServer.sendNotiMeeting();
 }, the_interval);

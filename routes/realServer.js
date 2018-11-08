@@ -11,7 +11,7 @@ class RealServer {
         Post.find(
             {
                 'is_active': true, $where: function () {
-                    return this.expires_time < Date.now();
+                    return this.time < Date.now();
                 }
             }
         ).exec((err, posts) => {
@@ -39,7 +39,7 @@ class RealServer {
         Meeting.find(
             {
                 'is_finished': false, $where: function () {
-                    return (this.time) < Date.now(); // sau 6 tiếng thì gọi lệnh này 1 lần
+                    return (this.time) < Date.now();
                 }
             }
         ).exec((err, meetings) => {
@@ -48,7 +48,6 @@ class RealServer {
             } else if (!meetings) {
                 console.log("Meeting not found");
             } else {
-                console.log('số meeting hết hạn được xét lại status: ' + meetings.length);
                 for (let item of meetings) {
                     item.is_finished = true;
                     item.save((err) => {
@@ -56,7 +55,6 @@ class RealServer {
                             console.log(err);
                         } else {
                             console.log('Vừa gọi API set lại status Meeting');
-
                         }
                     });
                 }
@@ -77,7 +75,6 @@ class RealServer {
             } else if (!meetings) {
                 console.log("Meeting not found");
             } else {
-                console.log('số meeting hết hạn được gửi noti: ' + meetings.length);
                 for (let item of meetings) {
                     item.is_send_noti = true;
 
@@ -92,7 +89,7 @@ class RealServer {
                                     user_id: userID,
                                     // type: 2, // 2 = type Meeting
                                     image: item.creator.avatar,
-                                    title: "Bạn có muốn đánh giá cho " +userID + " trong meeting vừa kết thúc ngày hôm qua?",
+                                    title: "Bạn có muốn đánh giá cho cuộc hẹn tại " + item.place.toString() + " đã kết thúc vào ngày hôm qua?",
                                     content: { type: 2, data: item }
                                 });
                                 // Attempt to save the user
@@ -125,6 +122,37 @@ class RealServer {
                         }
                     });
                 }
+            }
+        });
+    }
+
+
+    sendNotiPostExpire() {
+        Post.find({
+            is_active: true,
+            is_noti: false,
+            $where: function () {
+                return (this.time - Date.now()) >= 5 * 60 * 60 * 1000; // còn 5 tiếng nữa là tới thời gian đi ăn chung
+            }
+        }).exec((err, posts) => {
+            if (err) {
+                console.log(err);
+            } else {
+                // Xử lí tại đây nha
+                posts.forEach(function (item_post) {
+                    if (global.socket_list[item_post.creator.toString()] != null) {
+                        item_post.is_noti = true;
+                        item_post.save((err, post) => {
+                            if (err) {
+                                console.log(err);
+                            }else {
+                                console.log("Gọi Noti thành công khi bài post sáp hết hạn");
+                            }
+                        });
+                        console.log("goi emit notify-user-" + item_post.creator.toString());
+                        global.socket_list[item_post.creator.toString()].emit("notify-user-" + item_post.creator.toString(), { nomal: item_post });
+                    } 
+                });
             }
         });
     }

@@ -18,7 +18,7 @@ var PostSchema = new Schema({
     time: {type: Date,default: Date.now()},
     created_date: {type: Date, default: Date.now()},
     modified_date: {type: Date, default: Date.now()},
-    expires_time: {type: Date, default: Date.now() + 604800 * 1000}
+    is_noti: {type: Boolean, default:false}
 }, {
     usePushEach: true,
     versionKey: false
