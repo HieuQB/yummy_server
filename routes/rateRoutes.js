@@ -31,7 +31,9 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                         message: `Error: ${err}`
                     });
                 else if (meeting) {
-                    if (meeting.joined_people.indexOf(newRate.creator) > -1) {
+                    console.log(meeting.joined_people);
+                    console.log(newRate.creator._id);
+                    if (meeting.joined_people.indexOf(newRate.creator._id) > -1) {
                         //In the array!
                     } else {
                         //Not in the array

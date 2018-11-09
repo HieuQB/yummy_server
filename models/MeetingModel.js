@@ -15,7 +15,8 @@ var MeetingSchema = new Schema({
     comments: [{type: Number, ref: 'Comment'}],
     place: {type: String, default:""},
     time: {type: Date,default: Date.now()},
-    is_send_noti: {type: Boolean, default:false}
+    is_send_noti: {type: Boolean, default:false},
+    point_average: {type: Number, default: 0}
 }, {
     usePushEach: true,
     versionKey: false

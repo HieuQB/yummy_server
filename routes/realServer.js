@@ -20,7 +20,7 @@ class RealServer {
             } else if (!posts) {
                 console.log("Post not found");
             } else {
-                console.log('Số bài post hết hạn được xét lại status: ' + posts.length);
+                // console.log('Số bài post hết hạn được xét lại status: ' + posts.length);
                 for (let item of posts) {
                     item.is_active = false;
                     item.save((err) => {
@@ -125,7 +125,6 @@ class RealServer {
             }
         });
     }
-
 
     sendNotiPostExpire() {
         Post.find({

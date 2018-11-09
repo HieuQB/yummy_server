@@ -67,6 +67,14 @@ var UserSchema = new Schema({
     count_people_evaluate: {
         type: Number,
         default:0
+    }, 
+    count_meeting: {
+        type: Number,
+        default: 0
+    },
+    count_post: {
+        type: Number,
+        default: 0
     }
 }, {
     versionKey: false

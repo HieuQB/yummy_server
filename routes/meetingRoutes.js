@@ -286,34 +286,37 @@ router.post('/:userId/list_status', passport.authenticate('jwt', {
                     message: `Error is : ${err}`
                 });
             } else {
-                // var point_average = 0;
-                // meeting.forEach(function (item_meeting) {
+                global.meeting_list = new Array();
+                meeting.forEach(function (item_meeting) {
 
-                //     Rate.find({
-                //         meeting: item_meeting._id,
-                //         type_rating: 1,
-                //         people_evaluate: req.params.userId
-                //     })
-                //         .exec((err, rating) => {
-                //             if (err) {
-                //                 console.log(err);
-                //             }
-                //             if (!rating) {
-                //                 console.log("rating not found");
-                //             } else {
-                //                 rating.forEach(function (item_rating) {
-                //                     point_average += item_rating.point;
-                //                 });
-                //                 item_meeting.point_average = point_average;
-                //                 item_meeting.save();
-                //                 console.log(item_meeting);
-                //                 // console.log(rating);
-                //             }
-                //         });
-                // });
+                    Rate.find({
+                        meeting: item_meeting._id,
+                        type_rating: 1,
+                        people_evaluate: req.params.userId
+                    })
+                        .exec((err, rating) => {
+                            if (err) {
+                                console.log(err);
+                            }
+                            if (!rating) {
+                                console.log("rating not found");
+                            } else {
+                                var point_average = 0;
+                                // console.log(rating);
+                                rating.forEach(function (item_rating) {
+                                    point_average += item_rating.point;
+                                });
+                                item_meeting.point_average = point_average/rating.length;
+                                console.log(item_meeting.point_average);
+                                global.meeting_list.push(item_meeting);
+                                // console.log(rating);
+                            }
+                        });
+
+                });
                 res.json({
                     success: true,
-                    data: meeting,
+                    data: global.meeting_list,
                     message: "success"
                 });
             }

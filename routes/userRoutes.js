@@ -9,6 +9,7 @@ var voucher_codes = require('voucher-code-generator');
 var Post = require('../models/PostModel');
 var router = express.Router();
 var Rate = require('../models/RateModel');
+var Meeting = require('../models/MeetingModel');
 
 function getNextSequenceValue(sequenceName) {
     var sequenceDocument = db.counters.findAndModify(
@@ -156,15 +157,19 @@ router.get('/:userId', passport.authenticate('jwt', {
         if (err)
             res.status(500).send(err);
         else if (user) {
-            if (user.count_people_evaluate > 0) {
-                user.average_point = user.main_point / user.count_people_evaluate;
-            } else {
-                user.average_point = 0;
-            }
-            res.json({
-                success: true,
-                data: user,
-                message: "successful"
+            Meeting.find({creator: user._id}).exec((err,meetings) => {
+                    if (err) throw err;
+                    user.count_meeting = meetings.length;
+                    Post.find({creator: user._id}).exec((err,posts) => {
+                        if (err) throw err;
+                        user.count_post = posts.length;
+                        res.json({
+                            success: true,
+                            data: user,
+                            message: "successful"
+                        });
+                    });
+
             });
         }
         else {
@@ -204,7 +209,7 @@ router.post('/listpostuser', passport.authenticate('jwt', {
 }), function (req, res, next) {
     Post.find(
         // { 'is_active': true, 'creator': { '_id': req.body.user_id } })
-        {  'creator': { '_id': req.body.user_id } })
+        { 'creator': { '_id': req.body.user_id } })
         .limit(10).skip(req.body.page * 10)
         .sort({ created_date: -1 })
         .populate('creator')
