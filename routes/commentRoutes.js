@@ -68,7 +68,6 @@ router.get('/:postId/comment', (req, res, next) => {
 router.post('/:postId/comment', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), (req, res, next) => {
     const comment = new Comment(req.body);
     comment.creator = req.user;
-
     comment.save((err) => {
         if (err) {
             res.json({
@@ -111,7 +110,6 @@ router.post('/:postId/comment', passport.authenticate('jwt', { session: false, f
                             }
                         });
                     }
-
                     res.json({
                         success: true,
                         data: comment,
@@ -136,7 +134,7 @@ router.put('/:postId/comment/:commentId', passport.authenticate('jwt', { session
         delete req.body._id;
     if (req.body.id)
         delete req.body.id;
-    //user is not creator
+    // user is not creator
     if (req.user.id === req.comment.creator.id) {
         for (var p in req.body) {
             req.comment[p] = req.body[p];

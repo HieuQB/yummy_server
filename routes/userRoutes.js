@@ -157,7 +157,7 @@ router.get('/:userId', passport.authenticate('jwt', {
         if (err)
             res.status(500).send(err);
         else if (user) {
-            Meeting.find({creator: user._id}).exec((err,meetings) => {
+            Meeting.find({creator: user._id, is_finished: true}).exec((err,meetings) => {
                     if (err) throw err;
                     user.count_meeting = meetings.length;
                     Post.find({creator: user._id}).exec((err,posts) => {
@@ -169,7 +169,6 @@ router.get('/:userId', passport.authenticate('jwt', {
                             message: "successful"
                         });
                     });
-
             });
         }
         else {
@@ -208,8 +207,8 @@ router.post('/listpostuser', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     Post.find(
-        // { 'is_active': true, 'creator': { '_id': req.body.user_id } })
-        { 'creator': { '_id': req.body.user_id } })
+        { 'is_active': true, 'creator': { '_id': req.body.user_id } })
+        // { 'creator': { '_id': req.body.user_id } })
         .limit(10).skip(req.body.page * 10)
         .sort({ created_date: -1 })
         .populate('creator')

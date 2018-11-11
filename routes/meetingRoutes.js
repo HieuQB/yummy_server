@@ -306,7 +306,7 @@ router.post('/:userId/list_status', passport.authenticate('jwt', {
                                 rating.forEach(function (item_rating) {
                                     point_average += item_rating.point;
                                 });
-                                item_meeting.point_average = point_average/rating.length;
+                                item_meeting.point_average = point_average / rating.length;
                                 console.log(item_meeting.point_average);
                                 global.meeting_list.push(item_meeting);
                                 // console.log(rating);
@@ -343,7 +343,6 @@ router.get('/:meetingId/list_comment', passport.authenticate('jwt', {
                     message: `Error: ${err}`
                 });
             else if (metting) {
-
                 res.json({
                     success: true,
                     message: "Thành công",
@@ -364,25 +363,27 @@ router.get('/:meetingId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Meeting.findById(req.params.meetingId).populate("joined_people").populate("creator")
-        .exec((err, metting) => {
+    Meeting.findById(req.params.meetingId).populate("joined_people").populate("creator").populate({
+        path: 'comments',
+        model: 'Comment',
+    })
+        .exec((err, meeting) => {
             if (err)
                 res.json({
                     success: false,
                     message: `Error: ${err}`
                 });
-            else if (metting) {
-
+            else if (meeting) {
                 res.json({
                     success: true,
                     message: "Thành công",
-                    data: metting
+                    data: meeting
                 });
             }
             else {
                 res.json({
                     success: false,
-                    message: "metting not found"
+                    message: "meeting not found"
                 });
             }
         });
@@ -393,8 +394,7 @@ router.get('/:meetingID/list_rating/:userId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-
-    Rate.find({ meeting: req.params.meetingID, type_rating: 1 , people_evaluate: req.params.userId}).populate('creator').exec((err, rates) => {
+    Rate.find({ meeting: req.params.meetingID, type_rating: 1, people_evaluate: req.params.userId }).populate('creator').exec((err, rates) => {
         if (err)
             res.status(500).send(err);
         else if (rates) {
@@ -409,6 +409,93 @@ router.get('/:meetingID/list_rating/:userId', passport.authenticate('jwt', {
                 success: false,
                 data: {},
                 message: "rates not found"
+            });
+        }
+    });
+});
+
+
+// Sửa comment trong meeting 
+router.put('/update_comment/:commentID', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Comment.findById(req.params.commentID).populate('creator').exec((err, comment) => {
+        if (err)
+            res.status(500).send(err);
+        else if (comment) {
+            if (req.body._id)
+                delete req.body._id;
+            if (req.body.id)
+                delete req.body.id;
+            // user is not creator
+            if (req.user._id === comment.creator._id) {
+                for (var p in req.body) {
+                    comment[p] = req.body[p];
+                }
+                comment.modify_date = Date.now();
+
+                comment.save((err) => {
+                    if (err)
+                        res.json({
+                            success: false,
+                            message: `Error: ${err}`
+                        });
+                    else
+                        res.json({
+                            success: true,
+                            message: "update comment success",
+                            data: comment
+                        });
+                });
+            } else {
+                res.json({
+                    success: false,
+                    message: "You don't have permission"
+                })
+            }
+        }
+        else {
+            res.json({
+                success: false,
+                data: {},
+                message: "comment not found"
+            });
+        }
+    });
+});
+
+router.delete('/comment/:commentID', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), (req, res, next) => {
+    Comment.findById(req.params.commentID).populate('creator').exec((err, comment) => {
+        if (err)
+            res.status(500).send(err);
+        else if (comment) {
+            if (req.user._id === comment.creator._id) {
+                comment.remove((err) => {
+                    if (err)
+                        res.json({
+                            success: false,
+                            message: `Error: ${err}`
+                        });
+                    else {
+                        res.json({
+                            success: true,
+                            message: "delete comment success"
+                        });
+                    }
+                });
+            } else {
+                res.json({
+                    success: false,
+                    message: "You don't have permission"
+                })
+            }
+
+        } else {
+            res.json({
+                success: false,
+                data: {},
+                message: "comment not found"
             });
         }
     });
