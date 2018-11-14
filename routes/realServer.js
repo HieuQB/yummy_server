@@ -146,10 +146,30 @@ class RealServer {
                                 console.log(err);
                             }else {
                                 console.log("Gọi Noti thành công khi bài post sáp hết hạn");
+                                // Create Notification in Database
+                                var newNoti = new Notification({
+                                    user_id: post.creator,
+                                    // type: 2, // 2 = type Meeting
+                                    image: post.image,
+                                    title: "Bài post của bạn sắp hết hạn !",
+                                    content: { type: 1, data: post}
+                                });
+                                // Attempt to save the user
+                                newNoti.save(function (err, noti) {
+                                    if (err) {
+                                        return res.json({
+                                            success: false,
+                                            message: err
+                                        }).status(301);
+                                    }
+                                    if (global.socket_list[noti.user_id.toString()] != null) {
+                                        global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+                                    } else {
+                                        console.log("socket ở hàm sendNotiPostExpire null");
+                                    }
+                                });
                             }
                         });
-                        console.log("goi emit notify-user-" + item_post.creator.toString());
-                        global.socket_list[item_post.creator.toString()].emit("notify-user-" + item_post.creator.toString(), { nomal: item_post });
                     } 
                 });
             }

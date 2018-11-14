@@ -7,7 +7,7 @@ var PostSchema = new Schema({
     creator: {type: Number, ref: 'User'},
     amount: {type: Number},
     link: {type: String},
-    image: {type: String},
+    image: {type: String,default: ""},
     interested_people: [{type: Number, ref: 'User'}],
     categories: [{type: Number, ref: 'Category'}],
     is_active: {type: Boolean, default: true},

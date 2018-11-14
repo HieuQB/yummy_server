@@ -298,4 +298,13 @@ router.post('/is_had_rating', passport.authenticate('jwt', {
     }
 });
 
+// API SEARCH
+router.post('/search', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+        
+});
+
+
 module.exports = router;
