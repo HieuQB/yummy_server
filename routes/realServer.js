@@ -11,7 +11,7 @@ class RealServer {
         Post.find(
             {
                 'is_active': true, $where: function () {
-                    return this.time < Date.now();
+                    return this.time.getTime() < Date.now();
                 }
             }
         ).exec((err, posts) => {
@@ -39,7 +39,7 @@ class RealServer {
         Meeting.find(
             {
                 'is_finished': false, $where: function () {
-                    return (this.time) < Date.now();
+                    return (this.time.getTime()) < Date.now();
                 }
             }
         ).exec((err, meetings) => {
@@ -66,7 +66,7 @@ class RealServer {
         Meeting.find(
             {
                 'is_finished': true, 'is_send_noti': false, $where: function () {
-                    return (this.time + 24 * 60 * 60 * 1000) < Date.now(); // sau 24 tiếng thì gọi lệnh này 1 lần
+                    return (this.time.getTime() + 24 * 3600 * 1000) < Date.now(); // sau 24 tiếng thì gọi lệnh này 1 lần
                 }
             }
         ).exec((err, meetings) => {
@@ -127,11 +127,13 @@ class RealServer {
     }
 
     sendNotiPostExpire() {
+        
+        
         Post.find({
             is_active: true,
             is_noti: false,
             $where: function () {
-                return (this.time - Date.now()) <= 5 * 60 * 60 * 1000; // còn 5 tiếng nữa là tới thời gian đi ăn chung
+                return (this.time.getTime() - Date.now()) <= 5 * 3600 * 1000; // còn 5 tiếng nữa là tới thời gian đi ăn chung
             }
         }).exec((err, posts) => {
             if (err) {
@@ -139,6 +141,7 @@ class RealServer {
             } else {
                 // Xử lí tại đây nha
                 posts.forEach(function (item_post) {
+                    // console.log(item_post.time.getTime());
                     if (global.socket_list[item_post.creator.toString()] != null) {
                         item_post.is_noti = true;
                         item_post.save((err, post) => {
