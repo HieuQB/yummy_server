@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var Post = require('../models/PostModel');
 var Meeting = require('../models/MeetingModel');
+var Notification = require('../models/NotificationModel');
+
 class RealServer {
 
     constructor() {
