@@ -131,7 +131,7 @@ class RealServer {
             is_active: true,
             is_noti: false,
             $where: function () {
-                return (this.time - Date.now()) >= 5 * 60 * 60 * 1000; // còn 5 tiếng nữa là tới thời gian đi ăn chung
+                return (this.time - Date.now()) <= 5 * 60 * 60 * 1000; // còn 5 tiếng nữa là tới thời gian đi ăn chung
             }
         }).exec((err, posts) => {
             if (err) {
@@ -163,6 +163,7 @@ class RealServer {
                                         }).status(301);
                                     }
                                     if (global.socket_list[noti.user_id.toString()] != null) {
+                                        console.log("goi emit notify-user-" + noti.user_id.toString());
                                         global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
                                     } else {
                                         console.log("socket ở hàm sendNotiPostExpire null");

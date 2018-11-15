@@ -207,14 +207,13 @@ router.post('/listpostuser', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     Post.find(
-        { 'is_active': true, 'creator': { '_id': req.body.user_id } })
-        // { 'creator': { '_id': req.body.user_id } })
+        { 'creator': { '_id': req.body.user_id } })
         .limit(10).skip(req.body.page * 10)
         .sort({ created_date: -1 })
         .populate('creator')
         .populate("categories")
         .populate("interested_people")
-        .exec((err, meeting) => {
+        .exec((err, post) => {
             if (err) {
                 res.json({
                     success: false,
@@ -225,7 +224,7 @@ router.post('/listpostuser', passport.authenticate('jwt', {
                 res.json({
 
                     success: true,
-                    data: meeting,
+                    data: post,
                     message: "success"
                 });
             }
