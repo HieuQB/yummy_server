@@ -130,8 +130,8 @@ class RealServer {
         
         
         Post.find({
-            is_active: true,
-            is_noti: false,
+            'is_active': true,
+            'is_noti': false,
             $where: function () {
                 return (this.time.getTime() - Date.now()) <= 5 * 3600 * 1000; // còn 5 tiếng nữa là tới thời gian đi ăn chung
             }
@@ -139,6 +139,8 @@ class RealServer {
             if (err) {
                 console.log(err);
             } else {
+                console.log('Không có lỗi');
+                console.log(posts);
                 // Xử lí tại đây nha
                 posts.forEach(function (item_post) {
                     // console.log(item_post.time.getTime());
