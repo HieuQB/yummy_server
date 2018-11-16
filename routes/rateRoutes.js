@@ -306,7 +306,7 @@ router.delete('/:rateId', passport.authenticate('jwt', {
                 message: `Error: ${err}`
             });
         else if (rating) {
-            if (req.user != rating.creator) {
+            if (req.user._id != rating.creator) {
                 return res.json({
                     success: false,
                     data: {},

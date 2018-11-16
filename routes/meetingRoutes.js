@@ -150,6 +150,8 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                         }).status(301);
                     } else if (comment) {
                         meeting.joined_people.forEach(function (people) {
+                            console.log("people: "+people);
+                            console.log("craetor: "+comment.creator);
                             if (people != comment.creator._id) {
                                 // Create Notification in Database
                                 var newNoti = new Notification({
