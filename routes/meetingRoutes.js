@@ -520,10 +520,12 @@ router.post('/leave_meeting/:meetingID', passport.authenticate('jwt', {
 
         // Dành cho thẳng thoát là trưởng phòng
         if (req.user._id == meeting.creator) {
-            metting.joined_people.forEach(function (people) {
+            metting.joined_people.every(function (people,index) {
                 if (people != meeting.creator) {
                     meeting.creator = people;
-                    break;
+                    return true;
+                } else {
+                    return false;
                 }
             });
         }
