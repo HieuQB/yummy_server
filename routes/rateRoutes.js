@@ -4,7 +4,7 @@ var Rate = require('../models/RateModel');
 var passport = require('passport');
 var Meeting = require('../models/MeetingModel');
 var User = require('../models/UserModel');
-
+var RatingAverage = require('../models/RatingAverageModel');
 // Thêm rating cho meeting
 router.post('/rating_meeting', passport.authenticate('jwt', {
     session: false,
@@ -23,7 +23,7 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
         newRate.creator = req.user;
         newRate.type_rating = 1;
         console.log(newRate)
-        Meeting.findById(newRate.meeting)
+        Meeting.findById(newRate.meeting).populate('list_point_average')
             .exec((err, meeting) => {
                 if (err)
                     res.json({
@@ -31,10 +31,91 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                         message: `Error: ${err}`
                     });
                 else if (meeting) {
-                    console.log(meeting.joined_people);
-                    console.log(newRate.creator._id);
                     if (meeting.joined_people.indexOf(newRate.creator._id) > -1) {
                         //In the array!
+                        if (newRate.point < 0 || newRate.point > 10) {
+                            return res.json({
+                                success: false,
+                                data: {},
+                                message: "point not in 1 to 10",
+                                status: 404
+                            });
+                        }
+                        newRate.save(function (err, rate) {
+                            if (err) {
+                                res.json({
+                                    success: false,
+                                    data: {},
+                                    message: `error is : ${err}`
+                                });
+                            }
+                            else {
+                                var ratingAverage = null;
+                                meeting.list_point_average.forEach(item => {
+                                    if (item.user == rate.people_evaluate) {
+                                        ratingAverage = item;
+                                    } 
+                                });
+                                if (!ratingAverage)
+                                    return res.json({
+                                        success: false,
+                                        data: {},
+                                        message: "khong ton tai rating average"
+                                    });
+                
+                                ratingAverage.count_people++;
+                                console.log(rate.point);
+                                console.log(ratingAverage.point_sum + rate.point);
+                                ratingAverage.point_sum = ratingAverage.point_sum + rate.point;
+                                console.log(ratingAverage);
+                                ratingAverage.save( function (err) {
+                                    if (err) {
+                                        return res.json({
+                                            success: false,
+                                            data: {},
+                                            message: "can not rating meeting"
+                                        });
+                                    }
+                                    User.findById(rate.people_evaluate).exec((err, user) => {
+                                        if (err) {
+                                            return res.json({
+                                                success: false,
+                                                data: {},
+                                                message: `error is : ${err}`
+                                            });
+                                        }
+                                        if (user) {
+                
+                                            user.trust_point += rate.point;
+                                            user.save(function (err, userlast) {
+                                                if (err) {
+                                                    res.json({
+                                                        success: false,
+                                                        data: {},
+                                                        message: `error is : ${err}`
+                                                    });
+                                                } else {
+                                                    return res.json({
+                                                        success: true,
+                                                        data: rate,
+                                                        message: "success upload new rate meeting",
+                                                        status: 200
+                                                    })
+                                                }
+                                            });
+                                        } else {
+                                            return res.json({
+                                                success: false,
+                                                message: 'user not found',
+                                                status: 500
+                                            });
+                                        }
+                                    });
+                
+                                });
+                
+                            }
+                        });
                     } else {
                         //Not in the array
                         return res.json({
@@ -54,60 +135,6 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                     });
                 }
             });
-        if (newRate.point < 0 || newRate.point > 10) {
-            return res.json({
-                success: false,
-                data: {},
-                message: "point not in 1 to 10",
-                status: 404
-            });
-        }
-        newRate.save(function (err, rate) {
-            if (err) {
-                res.json({
-                    success: false,
-                    data: {},
-                    message: `error is : ${err}`
-                });
-            }
-            else {
-                User.findById(rate.people_evaluate).exec((err, user) => {
-                    if (err) {
-                        return res.json({
-                            success: false,
-                            data: {},
-                            message: `error is : ${err}`
-                        });
-                    }
-                    if (user) {
-                        user.trust_point += rate.point;
-                        user.save(function (err, userlast) {
-                            if (err) {
-                                res.json({
-                                    success: false,
-                                    data: {},
-                                    message: `error is : ${err}`
-                                });
-                            } else {
-                                console.log(userlast);
-                            }
-                        });
-                    } else {
-                        return res.json({
-                            success: false,
-                            message: 'user not found',
-                            status: 500
-                        });
-                    }
-                });
-                return res.json({
-                    success: true,
-                    data: rate,
-                    message: "success upload new rate meeting",
-                    status: 200
-                })
-            }
-        });
     }
 });
 
@@ -210,24 +237,24 @@ router.use('/:rateId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-        Rate.findById(req.params.rateId).exec((err, rating) => {
-            if (err)
-                res.json({
-                    success: false,
-                    data: {},
-                    message: `Error: ${err}`
-                });
-            else if (rating) {
-                req.rating = rating;
-                next();
-            } else {
-                res.json({
-                    success: false,
-                    data: {},
-                    message: "rating not found."
-                });
-            }
-        });
+    Rate.findById(req.params.rateId).exec((err, rating) => {
+        if (err)
+            res.json({
+                success: false,
+                data: {},
+                message: `Error: ${err}`
+            });
+        else if (rating) {
+            req.rating = rating;
+            next();
+        } else {
+            res.json({
+                success: false,
+                data: {},
+                message: "rating not found."
+            });
+        }
+    });
 });
 
 router.put('/:rateId', passport.authenticate('jwt', {
@@ -365,8 +392,8 @@ router.delete('/:rateId', passport.authenticate('jwt', {
             });
         }
     });
-    
-    
+
+
 });
 
 module.exports = router;

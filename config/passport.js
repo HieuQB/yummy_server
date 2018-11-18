@@ -16,7 +16,6 @@ module.exports = function(passport) {
             }
             if (user) {
                 done(null, user);
-                console.log(user);
                 if (global.socket_list[user._id.toString()] == null) {
                     global.io.sockets.emit("notify-user-" + user._id.toString(), { connect_socket: "true" });
                 }

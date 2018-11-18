@@ -17,7 +17,7 @@ var MeetingSchema = new Schema({
     place: {type: String, default:""},
     time: {type: Date,default: Date.now()},
     is_send_noti: {type: Boolean, default:false},
-    point_average: {type: Number, default: 0}
+    list_point_average: [{type: Number, ref:'RatingAverage'}]
 }, {
     usePushEach: true,
     versionKey: false

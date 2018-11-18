@@ -142,8 +142,6 @@ class RealServer {
             if (err) {
                 console.log(err);
             } else {
-                console.log('Không có lỗi');
-                console.log(posts);
                 // Xử lí tại đây nha
                 posts.forEach(function (item_post) {
                     // console.log(item_post.time.getTime());
