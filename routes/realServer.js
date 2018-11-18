@@ -104,7 +104,7 @@ class RealServer {
                                     }
                                     if (global.socket_list[noti.user_id.toString()] != null) {
                                         console.log("goi emit notify-user-" + noti.user_id.toString());
-                                        global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+                                        global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { rating: noti });
                                     } else {
                                         console.log("socket null");
                                         newWaiting = new WaitingNoti({
