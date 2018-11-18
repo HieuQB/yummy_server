@@ -3,6 +3,7 @@ var router = express.Router();
 var Post = require('../models/PostModel');
 var Meeting = require('../models/MeetingModel');
 var Notification = require('../models/NotificationModel');
+var WaitingNoti = require('../models/WaitingNotiModel');
 
 class RealServer {
 
