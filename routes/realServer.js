@@ -68,7 +68,7 @@ class RealServer {
         Meeting.find(
             {
                 'is_finished': true, 'is_send_noti': false, $where: function () {
-                    return (this.time.getTime() + 24 * 3600 * 1000) < Date.now(); // sau 24 tiếng thì gọi lệnh này 1 lần
+                    return (this.time.getTime() + (1 * 3600 * 1000)/60) < Date.now(); // sau 24 tiếng thì gọi lệnh này 1 lần
                 }
             }
         ).exec((err, meetings) => {
