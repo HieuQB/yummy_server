@@ -63,12 +63,10 @@ io.sockets.on('connection', function (socket) {
       if (err) {
         console.log(err);
       }else if(waitings.length == 0) {
-        console.log("không còn nợ noti với user: "+ data_user.mId);
       } else {
         waitings.forEach(function (item_wating) {
           if (global.socket_list[item_wating.userID.toString()] != null) {
             console.log("goi emit notify-user-" + item_wating.userID.toString());
-            console.log("aaaaaaaaaaaaaaaaaaaaaa"+ item_wating.dataNoti);
             global.socket_list[item_wating.userID.toString()].emit("notify-user-" + item_wating.userID.toString(), { nomal: item_wating.dataNoti });
             item_wating.remove((err) => {
               console.log(err);
@@ -82,13 +80,12 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    console.log('co thang offline');
+    console.log('co nguoi offline');
     console.log(data_user);
     // global.socket_list.detele(data_user.mId.toString());
     if(data_user) {
       delete global.socket_list[data_user.mId.toString()];
     }
-    console.log(global.socket_list);
     // socket.emit('disconnected');
     // online = online - 1;
 

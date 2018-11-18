@@ -302,7 +302,13 @@ router.post('/search', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
+    User.find({
+        $geoNear: {
+            near: [req.body.latitude, req.body.longitude],
+            distanceField: 'location'
+        },
         
+    });
 });
 
 

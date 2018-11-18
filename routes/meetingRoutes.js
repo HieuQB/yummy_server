@@ -7,6 +7,7 @@ var Comment = require('../models/CommentModel');
 var Post = require('../models/PostModel');
 var Rate = require('../models/RateModel');
 var WaitingNoti = require('../models/WaitingNotiModel');
+var LeavePerson = require('../models/LeavePersonModel');
 
 //  Tạo cuộc hẹn mới
 router.post('/create_meeting', passport.authenticate('jwt', {
@@ -150,8 +151,8 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                         }).status(301);
                     } else if (comment) {
                         meeting.joined_people.forEach(function (people) {
-                            console.log("people: "+people);
-                            console.log("craetor: "+comment.creator);
+                            console.log("people: " + people);
+                            console.log("craetor: " + comment.creator);
                             if (people != comment.creator._id) {
                                 // Create Notification in Database
                                 var newNoti = new Notification({
@@ -503,4 +504,43 @@ router.delete('/comment/:commentID', passport.authenticate('jwt', { session: fal
     });
 });
 
+
+router.post('/leave_meeting/:meetingID', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Meeting.findById(req.params.meetingID).exec((err, meeting) => {
+        if (meeting.joined_people.indexOf(req.user._id) == -1) {
+            return res.json ({
+                success: false,
+                data: {},
+                message: "bạn không tham gia meeting này!"
+            });
+        }
+
+        // Dành cho thẳng thoát là trưởng phòng
+        if (req.user._id == meeting.creator) {
+            metting.joined_people.forEach(function (people) {
+                if (people != meeting.creator) {
+                    meeting.creator = people;
+                    break;
+                }
+            });
+        }
+        // remove khỏi list john people và thêm vào list leave people
+        meeting.joined_people.pull(req.user._id);
+        var newLeavePerson = new LeavePerson();
+        newLeavePerson.user = req.user._id;
+        newLeavePerson.type = 0;
+        newLeavePerson.reason = req.body.reason;
+
+        meeting.leave_people.push(newLeavePerson);
+
+        meeting.save((err,meeting) => {
+            if (meeting) {
+                console.log("lưu thành công meeting:  "+meeting)
+            }
+        });
+    });
+});
 module.exports = router;
