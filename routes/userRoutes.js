@@ -303,7 +303,6 @@ router.post('/search/:page', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    console.log(req.body.latitude);c
     if (req.body.gender != null) {
         User.aggregate([
             {
@@ -356,7 +355,10 @@ router.post('/search/:page', passport.authenticate('jwt', {
                     age: { "$gt": req.body.tuoiduoi, "$lt": req.body.tuoitren }
                 }
             }
-        ]).exec((err, listUserSearch) => {
+        ])
+        .limit(10).skip(req.params.page * 10)
+        .sort({ trust_point: -1 ,main_point:-1})
+        .exec((err, listUserSearch) => {
             if (err) {
                 res.json({
                     success: false,
