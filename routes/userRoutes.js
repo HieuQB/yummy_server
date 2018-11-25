@@ -329,6 +329,13 @@ router.post('/search/:page', passport.authenticate('jwt', {
                         message: `error is : ${err}`
                     });
                 } else {
+                    listUserSearch.forEach(item_user => {
+                        if (global.socket_list[item_user._id.toString()]) {
+                            item_user.isOnline = true;
+                        } else {
+                            item_user.isOnline = false;
+                        }
+                    });
                     res.json({
                         success: true,
                         data: listUserSearch,
