@@ -5,12 +5,12 @@ var passport = require('passport');
 var Meeting = require('../models/MeetingModel');
 var User = require('../models/UserModel');
 var RatingAverage = require('../models/RatingAverageModel');
+
 // Thêm rating cho meeting
 router.post('/rating_meeting', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-
     if (req.user._id == req.body.people_evaluate) {
         return res.json({
             success: false,
@@ -22,7 +22,6 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
         const newRate = new Rate(req.body);
         newRate.creator = req.user;
         newRate.type_rating = 1;
-        console.log(newRate)
         Meeting.findById(newRate.meeting).populate('list_point_average')
             .exec((err, meeting) => {
                 if (err)
@@ -54,7 +53,7 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                                 meeting.list_point_average.forEach(item => {
                                     if (item.user == rate.people_evaluate) {
                                         ratingAverage = item;
-                                    } 
+                                    }
                                 });
                                 if (!ratingAverage)
                                     return res.json({
@@ -62,13 +61,10 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                                         data: {},
                                         message: "khong ton tai rating average"
                                     });
-                
+
                                 ratingAverage.count_people++;
-                                console.log(rate.point);
-                                console.log(ratingAverage.point_sum + rate.point);
                                 ratingAverage.point_sum = ratingAverage.point_sum + rate.point;
-                                console.log(ratingAverage);
-                                ratingAverage.save( function (err) {
+                                ratingAverage.save(function (err) {
                                     if (err) {
                                         return res.json({
                                             success: false,
@@ -85,7 +81,6 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                                             });
                                         }
                                         if (user) {
-                
                                             user.trust_point += rate.point;
                                             user.save(function (err, userlast) {
                                                 if (err) {
@@ -111,9 +106,9 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                                             });
                                         }
                                     });
-                
+
                                 });
-                
+
                             }
                         });
                     } else {
@@ -136,6 +131,84 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                 }
             });
     }
+});
+
+//update rating meeting
+router.post('/update_rating_meeting/:ratingID', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Rate.findById(req.params.ratingID).exec((err, rate) => {
+        if (rate.creator != req.user._id) {
+            return res.json({
+                success: false,
+                data: {},
+                message: "bạn không có quyền cập nhật"
+            });
+        }
+        if (err) {
+            return res.json({
+                success: false,
+                data: {},
+                message: `error is : ${err}`
+            });
+        } else {
+            if (!rate) {
+                return res.json({
+                    success: true,
+                    data: {},
+                    message: "rate not found"
+                });
+            } else {
+                var change_point = req.body.point - rate.point;
+                if (req.body.content)
+                    rate.content = req.body.content;
+                if (req.body.point)
+                    rate.point = req.body.point;
+                rate.update_date = Date.now();
+                rate.save(function(err,newRate) {
+                    if (err) {
+                        return res.json({
+                            success: false,
+                            data: {},
+                            message: `error is : ${err}`
+                        });
+                    } else {
+                        Meeting.findById(newRate.meeting).populate('list_point_average').exec((err,meeting) => {
+                            if (err) {
+                                return res.json({
+                                    success: false,
+                                    data: {},
+                                    message: `error is : ${err}`
+                                });
+                            } else {
+                                meeting.list_point_average.forEach(item => {
+                                    if (item.user == newRate.people_evaluate) {
+                                        item.point_sum += change_point;
+                                        item.save((err)=> {
+                                            if (err) {
+                                                return res.json({
+                                                    success: false,
+                                                    data: {},
+                                                    message: `error is : ${err}`
+                                                });
+                                            } else {
+                                                return res.json({
+                                                    success: true,
+                                                    data: newRate,
+                                                    message: "update rating meeting success"
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    });
 });
 
 // thêm rating cho profile
@@ -392,8 +465,13 @@ router.delete('/:rateId', passport.authenticate('jwt', {
             });
         }
     });
-
-
 });
+
+
+// ấn cancel, gọi API này để rating mặc định cho những user khác?? 
+// ủa nếu ấn cancel thì hôm khác vô đánh giá, 
+// rồi nếu sau 3 ngày mà k chịu làm thì server tự động đánh giá luôn cũng đc 
+// Nếu làm thì gọi 1 lần API rồi đánh giá điểm mặc định cho nhiều người 
+// hay là mỗi lần cancel là chỉ đánh giá mặc định cho 1 người
 
 module.exports = router;

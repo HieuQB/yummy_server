@@ -57,33 +57,33 @@ io.sockets.on('connection', function (socket) {
 
     // kiểm tra uesr có trong danh sách waiting noti hay không
     // nếu có thì gửi lại noti cho nó
-    WaitingNoti.find({userID: data_user.mId})
-    .populate('dataNoti')
-    .exec((err,waitings) => {
-      if (err) {
-        console.log(err);
-      }else if(waitings.length == 0) {
-      } else {
-        waitings.forEach(function (item_wating) {
-          if (global.socket_list[item_wating.userID.toString()] != null) {
-            console.log("goi emit notify-user-" + item_wating.userID.toString());
-            global.socket_list[item_wating.userID.toString()].emit("notify-user-" + item_wating.userID.toString(), { nomal: item_wating.dataNoti });
-            item_wating.remove((err) => {
-              console.log(err);
-            });
-          } else {
-            console.log("socket null");
-           }
-        });
-      }
-    });
+    WaitingNoti.find({ userID: data_user.mId })
+      .populate('dataNoti')
+      .exec((err, waitings) => {
+        if (err) {
+          console.log(err);
+        } else if (waitings.length == 0) {
+        } else {
+          waitings.forEach(function (item_wating) {
+            if (global.socket_list[item_wating.userID.toString()] != null) {
+              console.log("goi emit notify-user-" + item_wating.userID.toString());
+              global.socket_list[item_wating.userID.toString()].emit("notify-user-" + item_wating.userID.toString(), { nomal: item_wating.dataNoti });
+              item_wating.remove((err) => {
+                console.log(err);
+              });
+            } else {
+              console.log("socket null");
+            }
+          });
+        }
+      });
   });
 
   socket.on('disconnect', function () {
     console.log('co nguoi offline');
     console.log(data_user);
     // global.socket_list.detele(data_user.mId.toString());
-    if(data_user) {
+    if (data_user) {
       delete global.socket_list[data_user.mId.toString()];
     }
     // socket.emit('disconnected');
@@ -164,17 +164,10 @@ function onListening() {
 var minutes = 1,
   the_interval = minutes * 60 * 1000;
 setInterval(function () {
-  //  ERC20obj.batchSendReward(Constant.OWNER_TOKEN_ADDRESS,
-  //      Constant.PRV_KEY_OWNER,
-  //      Constant.EESTY_TOKEN_ADDRESS).then(function(result) {
-  //      console.log("RESULT batch: " + result);
-  //  }).catch(function(err) {
-  //      console.log("ERROR batch: " + err);
-  //  })
-  // console.log("1 phút trôi qua");
   realServer = new RealServer();
   realServer.setStatusPost();
   realServer.setStatusMeeting();
   realServer.sendNotiPostExpire();
   realServer.sendNotiMeeting();
+  realServer.setDefaultRating();
 }, the_interval);

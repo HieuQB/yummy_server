@@ -118,7 +118,7 @@ router.post('/forgotPassword', function (req, res, next) {
         service: 'Gmail',
         auth: {
             user: 'netficuit@gmail.com',
-            pass: '@14520288Mh'
+            pass: '14520288Mh'
         }
     });
 
