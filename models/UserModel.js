@@ -29,14 +29,15 @@ var UserSchema = new Schema({
     address: {
         type: String,
     },
-    latlngAddress : {
-        type: {coordinates: {type: [Number], index: '2d', spherical: true}},
-    },
+    latlngAddress: {coordinates: {type: [Number], index: '2d', spherical: true}},
     gender: {
-        type: Number,
+        type: Number, // 1 là nam, 0 là nữ
     },
     birthday:{
         type: Date,
+    },
+    age: {
+        type: Number,
     },
     phone: {
         type: String,
@@ -81,6 +82,13 @@ var UserSchema = new Schema({
 });
 UserSchema.plugin(autoIncrement.plugin,'User');
 
+UserSchema.plugin(function(schema, options) {
+    schema.pre('find', function(next) {
+        this.age = new Date().getFullYear() - new Date(this.birthday).getFullYear();
+        next();
+    }) 
+})
+
 // Saves the user's password hashed (plain text password storage is not good)
 UserSchema.pre('save', function (next) {
     var user = this;
@@ -94,6 +102,7 @@ UserSchema.pre('save', function (next) {
                     return next(err);
                 }
                 user.password = hash;
+                // user.age = new Date().getFullYear() - this.birthday.getFullYear();
                 next();
             });
         });

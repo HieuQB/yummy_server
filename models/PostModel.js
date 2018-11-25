@@ -26,7 +26,6 @@ var PostSchema = new Schema({
 
 PostSchema.plugin(autoIncrement.plugin, 'Post');
 
-
 function addCategoryToDatabase(categories, callback) {
     var data = [];
     if(categories == null || categories.length === 0)
@@ -51,6 +50,5 @@ function addCategoryToDatabase(categories, callback) {
 
     });
 }
-
 module.exports = mongoose.model('Post', PostSchema);
 module.exports.addCategoryToDatabase = addCategoryToDatabase;

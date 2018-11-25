@@ -10,6 +10,7 @@ var Post = require('../models/PostModel');
 var router = express.Router();
 var Rate = require('../models/RateModel');
 var Meeting = require('../models/MeetingModel');
+var geodist = require('geodist');
 
 function getNextSequenceValue(sequenceName) {
     var sequenceDocument = db.counters.findAndModify(
@@ -157,18 +158,18 @@ router.get('/:userId', passport.authenticate('jwt', {
         if (err)
             res.status(500).send(err);
         else if (user) {
-            Meeting.find({creator: user._id, is_finished: true}).exec((err,meetings) => {
+            Meeting.find({ creator: user._id, is_finished: true }).exec((err, meetings) => {
+                if (err) throw err;
+                user.count_meeting = meetings.length;
+                Post.find({ creator: user._id }).exec((err, posts) => {
                     if (err) throw err;
-                    user.count_meeting = meetings.length;
-                    Post.find({creator: user._id}).exec((err,posts) => {
-                        if (err) throw err;
-                        user.count_post = posts.length;
-                        res.json({
-                            success: true,
-                            data: user,
-                            message: "successful"
-                        });
+                    user.count_post = posts.length;
+                    res.json({
+                        success: true,
+                        data: user,
+                        message: "successful"
                     });
+                });
             });
         }
         else {
@@ -298,18 +299,75 @@ router.post('/is_had_rating', passport.authenticate('jwt', {
 });
 
 // API SEARCH
-router.post('/search', passport.authenticate('jwt', {
+router.post('/search/:page', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    User.find({
-        $geoNear: {
-            near: [req.body.latitude, req.body.longitude],
-            distanceField: 'location'
-        },
-        
-    });
+    console.log(req.body.latitude);c
+    if (req.body.gender != null) {
+        User.aggregate([
+            {
+                $geoNear: {
+                    near: [req.body.latitude, req.body.longitude],
+                    distanceField: 'latlngAddress'
+                }
+            },
+            {
+                $match: {
+                    age: { "$gt": req.body.tuoiduoi, "$lt": req.body.tuoitren },
+                    gender: req.body.gender
+                }
+            }
+        ])
+            .limit(10).skip(req.params.page * 10)
+            .sort({ trust_point: -1 ,main_point:-1})
+            .exec((err, listUserSearch) => {
+                if (err) {
+                    res.json({
+                        success: false,
+                        data: {},
+                        message: `error is : ${err}`
+                    });
+                } else {
+                    res.json({
+                        success: true,
+                        data: listUserSearch,
+                        status: 200
+                    });
+                }
+            });
+    } else {
+        User.aggregate([
+            {
+                $geoNear: {
+                    near: [req.body.latitude, req.body.longitude],
+                    distanceField: 'latlngAddress'
+                }
+            },
+            {
+                $match: {
+                    age: { "$gt": req.body.tuoiduoi, "$lt": req.body.tuoitren }
+                }
+            }
+        ]).exec((err, listUserSearch) => {
+            if (err) {
+                res.json({
+                    success: false,
+                    data: {},
+                    message: `error is : ${err}`
+                });
+            } else {
+                res.json({
+                    success: true,
+                    data: listUserSearch,
+                    status: 200
+                });
+            }
+        });
+    }
+
 });
+
 
 
 module.exports = router;

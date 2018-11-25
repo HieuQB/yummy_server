@@ -73,26 +73,6 @@ router.get('/:postId', function (req, res, next) {
     });
 });
 
-// router.use('/:postId/interested', passport.authenticate('jwt', {session: false, failureRedirect: '/unauthorized'}), function(req, res, next) {
-//    Post.findOne({ filter: { where: { id: req.params.postId } } }).populate('interested_people').exec((err, post) => {
-//        if(err) {
-//            res.json({
-//                success: false,
-//                message: `Error: ${err}`
-//            });
-//        }
-//        if(post) {
-//            req.post = post;
-//            next()
-//        } else {
-//            res.json({
-//                success: false,
-//                message: "Not found"
-//            })
-//        }
-//    })
-// });
-
 router.post('/:postId/interested', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
     var interestedUser = null;
     req.post.interested_people.forEach((person) => {
