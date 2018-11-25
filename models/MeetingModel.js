@@ -8,7 +8,7 @@ var MeetingSchema = new Schema({
     creator: {type: Number, ref: 'User',required: true},
     joined_people: [{type: Number, ref: 'User'}],
     leave_people: [{type: Number, ref: 'LeavePerson'}],
-    post_id: {type: Number,required: true},
+    post_id: {type: Number,ref:'Post'},
     title: {type: String, default:"Yummy Meeting"},
     created_date: {type: Date, default: Date.now()},
     is_finished: {type: Boolean, default: false},

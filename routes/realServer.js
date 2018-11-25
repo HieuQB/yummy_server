@@ -86,12 +86,10 @@ class RealServer {
                         if (err) {
                             console.log(err);
                         } else {
-                            // gọi socket gửi noti tới join peoole
                             item.joined_people.forEach(function (userID) {
                                 // Create Notification in Database
                                 var newNoti = new Notification({
                                     user_id: userID,
-                                    // type: 2, // 2 = type Meeting
                                     image: item.creator.avatar,
                                     title: "Bạn có muốn đánh giá cho cuộc hẹn tại " + item.place.toString() + " đã kết thúc vào ngày hôm qua?",
                                     content: { type: 2, data: item }
@@ -105,10 +103,8 @@ class RealServer {
                                         }).status(301);
                                     }
                                     if (global.socket_list[noti.user_id.toString()] != null) {
-                                        console.log("goi emit notify-user-" + noti.user_id.toString());
                                         global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { rating: noti });
                                     } else {
-                                        console.log("socket null");
                                         newWaiting = new WaitingNoti({
                                             userID: noti.user_id,
                                             dataNoti: noti
