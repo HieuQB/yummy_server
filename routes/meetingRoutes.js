@@ -304,7 +304,7 @@ router.post('/:userId/list_status', passport.authenticate('jwt', {
 }), function (req, res, next) {
     Meeting.find(
         { 'joined_people': { $in: [req.params.userId] }, is_finished: req.body.status }
-    ).populate("joined_people").populate("comments")
+    ).populate("joined_people").populate("comments").populate('list_point_average')
         .exec((err, meeting) => {
             if (err) {
                 res.json({
@@ -362,9 +362,17 @@ router.get('/:meetingId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Meeting.findById(req.params.meetingId).populate("joined_people").populate("creator").populate('list_point_average').populate('leave_people').populate({
+    Meeting.findById(req.params.meetingId).populate("joined_people").populate("creator").populate('leave_people').populate({
         path: 'comments',
         model: 'Comment',
+    })
+    .populate({
+        path: 'list_point_average',
+        model: 'RatingAverage',
+        populate: {
+            path: 'user',
+            model: 'User'
+        }
     })
         .exec((err, meeting) => {
             if (err)
