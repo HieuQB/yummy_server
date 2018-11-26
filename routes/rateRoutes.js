@@ -467,11 +467,4 @@ router.delete('/:rateId', passport.authenticate('jwt', {
     });
 });
 
-
-// ấn cancel, gọi API này để rating mặc định cho những user khác?? 
-// ủa nếu ấn cancel thì hôm khác vô đánh giá, 
-// rồi nếu sau 3 ngày mà k chịu làm thì server tự động đánh giá luôn cũng đc 
-// Nếu làm thì gọi 1 lần API rồi đánh giá điểm mặc định cho nhiều người 
-// hay là mỗi lần cancel là chỉ đánh giá mặc định cho 1 người
-
 module.exports = router;

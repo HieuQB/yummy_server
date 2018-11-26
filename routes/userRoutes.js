@@ -518,7 +518,7 @@ router.post('/acceptRequest', passport.authenticate('jwt', {
                                     user_id: meeting.creator._id,
                                     image: request.userSearch.avatar,
                                     title: request.userSearch.fullName.toString() + " vừa đồng ý lời mời đi ăn của bạn!",
-                                    content: { type: 3, data: meeting }
+                                    content: { type: 2, data: meeting }
                                 });
                                 // Attempt to save the user
                                 newNoti.save(function (err, noti) {
