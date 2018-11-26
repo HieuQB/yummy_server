@@ -517,7 +517,7 @@ router.post('/acceptRequest', passport.authenticate('jwt', {
                                 var newNoti = new Notification({
                                     user_id: meeting.creator._id,
                                     image: request.userSearch.avatar,
-                                    title: request.userSearch.fullName.toString() + " vừa đồng ý lời mời đi ăn của bạn!",
+                                    title: request.userSearch.fullName.toString() + " vừa đồng ý lời mời đi ăn của bạn. Ấn Đồng ý để xem chi tiết cuộc hẹn",
                                     content: { type: 2, data: meeting }
                                 });
                                 // Attempt to save the user
@@ -589,7 +589,7 @@ router.post('/rejectRequest', passport.authenticate('jwt', {
                 var newNoti = new Notification({
                     user_id: request.creator._id,
                     image: request.userSearch.avatar,
-                    title: request.userSearch.fullName.toString() + " vừa từ chối lời mời của bạn!",
+                    title: request.userSearch.fullName.toString() + " vừa từ chối lời mời của bạn. Bạn có muốn tìm kiếm người khác không?",
                     content: { type: 3, data: request }
                 });
                 // Attempt to save the user
