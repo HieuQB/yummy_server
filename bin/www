@@ -10,7 +10,7 @@ var http = require('http');
 var RealServer = require('../routes/realServer');
 var UserOnline = require('../models/UserOnlineModel');
 var WaitingNoti = require('../models/WaitingNotiModel');
-// var SocketSingleton = require('./socket');
+// var SocketSingleton = require('./socket');#
 /**
  * Get port from environment and store in Express.
  */
@@ -162,7 +162,7 @@ function onListening() {
 }
 
 var minutes = 1,
-  the_interval = minutes * 60 * 1000;
+  the_interval = minutes * 60 *1000;
 setInterval(function () {
   realServer = new RealServer();
   realServer.setStatusPost();
@@ -170,4 +170,11 @@ setInterval(function () {
   realServer.sendNotiPostExpire();
   realServer.sendNotiMeeting();
   realServer.setDefaultRating();
+}, the_interval);
+
+var minutes = 360,
+  the_interval = minutes * 60 *1000;
+setInterval(function () {
+  realServer = new RealServer();
+  realServer.getVoucherRealTime();
 }, the_interval);

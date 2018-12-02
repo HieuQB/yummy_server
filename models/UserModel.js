@@ -29,11 +29,11 @@ var UserSchema = new Schema({
     address: {
         type: String,
     },
-    latlngAddress: {coordinates: {type: [Number], index: '2d', spherical: true}},
+    latlngAddress: { coordinates: { type: [Number], index: '2d', spherical: true } },
     gender: {
         type: Number, // 1 là nam, 0 là nữ
     },
-    birthday:{
+    birthday: {
         type: Date,
     },
     age: {
@@ -43,32 +43,24 @@ var UserSchema = new Schema({
         type: String,
     },
     myCharacter: {
-         type : [{type: Number, ref: 'Character'}],
+        type: String,
     },
-    myStyle: {
-        type : String,
-    },
-    targetCharacter: {
-        type : String,
-    },
-    targetStyle: {
-        type : String,
-    },
-    targetFood: {
-        type : String,
-    },
+    myFavorite: [{
+        type: Number,
+        ref: 'Category'
+    }],
     trust_point: {
         type: Number,
         default: 50
     },
-    main_point:{
+    main_point: {
         type: Number,
-        default: 0 
+        default: 0
     },
     count_people_evaluate: {
         type: Number,
-        default:0
-    }, 
+        default: 0
+    },
     count_meeting: {
         type: Number,
         default: 0
@@ -76,17 +68,21 @@ var UserSchema = new Schema({
     count_post: {
         type: Number,
         default: 0
+    },
+    point_default: {
+        type: Number,
+        default: 0
     }
 }, {
-    versionKey: false
-});
-UserSchema.plugin(autoIncrement.plugin,'User');
+        versionKey: false
+    });
+UserSchema.plugin(autoIncrement.plugin, 'User');
 
-UserSchema.plugin(function(schema, options) {
-    schema.pre('find', function(next) {
+UserSchema.plugin(function (schema, options) {
+    schema.pre('find', function (next) {
         this.age = new Date().getFullYear() - new Date(this.birthday).getFullYear();
         next();
-    }) 
+    })
 })
 
 // Saves the user's password hashed (plain text password storage is not good)
@@ -97,7 +93,7 @@ UserSchema.pre('save', function (next) {
             if (err) {
                 return next(err);
             }
-            bcrypt.hash(user.password, salt, function(err, hash) {
+            bcrypt.hash(user.password, salt, function (err, hash) {
                 if (err) {
                     return next(err);
                 }
@@ -112,8 +108,8 @@ UserSchema.pre('save', function (next) {
 });
 
 // Create method to compare password input to password saved in database
-UserSchema.methods.comparePassword = function(pw, cb) {
-    bcrypt.compare(pw, this.password, function(err, isMatch) {
+UserSchema.methods.comparePassword = function (pw, cb) {
+    bcrypt.compare(pw, this.password, function (err, isMatch) {
         if (err) {
             return cb(err);
         }
@@ -121,10 +117,34 @@ UserSchema.methods.comparePassword = function(pw, cb) {
     });
 };
 
-UserSchema.methods.toJSON = function() {
+UserSchema.methods.toJSON = function () {
     var obj = this.toObject();
     delete obj.password;
     return obj;
 }
 
-module.exports  = mongoose.model('User', UserSchema);
+UserSchema.pre('save', function (next) {
+    var point_average_trust_point = 5;
+    if (this.trust_point == 50) {
+        point_average_trust_point = 5;
+    } else if (this.trust_point < 100) {
+        point_average_trust_point = 6;
+    } else if (this.trust_point < 150) {
+        point_average_trust_point = 7;
+    } else if (this.trust_point < 200) {
+        point_average_trust_point = 8;
+    } else if (this.trust_point < 250) {
+        point_average_trust_point = 9;
+    } else {
+        point_average_trust_point = 10;
+    }
+    if (this.count_people_evaluate == 0) {
+        this.point_default = (point_average_trust_point + 5) / 2;
+    } else {
+        this.point_default = ((main_point / count_people_evaluate) + point_average_trust_point) / 2;
+    }
+    console.log(this.point_default);
+    next();
+});
+
+module.exports = mongoose.model('User', UserSchema);

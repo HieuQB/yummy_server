@@ -31,9 +31,9 @@ var commentRoutes = require('./routes/commentRoutes');
 var reactionRoutes = require('./routes/reactionRoutes');
 var categoryRoutes = require('./routes/categoryRoutes');
 var notificationRoutes = require('./routes/notificationRoutes');
-var characterRoutes = require('./routes/characterRoutes');
 var meetingRoutes = require('./routes/meetingRoutes');
 var rateRoutes = require('./routes/rateRoutes');
+var voucherRoutes = require('./routes/voucherRoutes');
 
 var app = express();
 
@@ -62,9 +62,9 @@ app.use('/api/post', commentRoutes);
 app.use('/api/post', reactionRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/notification', notificationRoutes);
-app.use('/api/character', characterRoutes);
 app.use('/api/meeting', meetingRoutes);
 app.use('/api/rate', rateRoutes);
+app.use('/api/voucher', voucherRoutes);
 
 //catch unauthorized
 app.get('/unauthorized', function (req, res) {

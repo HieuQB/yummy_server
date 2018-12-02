@@ -8,6 +8,7 @@
   "dependencies": {
     "bcrypt": "^1.0.3",
     "body-parser": "~1.18.2",
+    "cheerio": "^1.0.0-rc.2",
     "cloud-env": "^0.2.3",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
@@ -23,6 +24,7 @@
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "pm2-windows-service": "^0.2.1",
+    "request": "^2.88.0",
     "serve-favicon": "~2.4.5",
     "socket.io": "*",
     "socketio-file-upload": "^0.4.4",

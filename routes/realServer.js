@@ -5,6 +5,9 @@ var Meeting = require('../models/MeetingModel');
 var Notification = require('../models/NotificationModel');
 var WaitingNoti = require('../models/WaitingNotiModel');
 var Rate = require('../models/RateModel');
+var request = require('request');
+var cheerio = require('cheerio');
+var Voucher = require('../models/VoucherModel');
 
 class RealServer {
 
@@ -105,10 +108,10 @@ class RealServer {
                                     if (global.socket_list[noti.user_id.toString()] != null) {
                                         global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { rating: noti });
                                     } else {
-                                        newWaiting = new WaitingNoti({
-                                            userID: noti.user_id,
-                                            dataNoti: noti
-                                        });
+                                        newWaiting = new WaitingNoti();
+                                        newWaiting.userID = noti.user_id;
+                                        newWaiting.dataNoti = noti;
+
                                         newWaiting.save(function (err, WaitingNoti) {
                                             if (err) {
                                                 console.log(err);
@@ -202,7 +205,6 @@ class RealServer {
             });
         });
         myPromise.then(function (result) {
-            // listMeeting = result;
             // console.log(result);
             var list_creator = [];
             var list_evaluate = [];
@@ -210,17 +212,17 @@ class RealServer {
                 // Giờ làm sao để biết meeting đó thiếu rating nào ????
                 item_meeting.joined_people.forEach(creator => {
                     item_meeting.joined_people.forEach(people_evaluate => {
-                        if (creator != people_evaluate){
+                        if (creator != people_evaluate) {
                             list_creator.push(creator);
                             list_evaluate.push(people_evaluate);
                         }
                     });
                 });
 
-                Rate.find({meeting: item_meeting._id}).exec((err,rates)=> {
+                Rate.find({ meeting: item_meeting._id }).exec((err, rates) => {
                     rates.forEach(item_rate => {
-                        for(var i =0; i< list_creator.length;i++) {
-                            if (item_rate.creator == list_creator[i] && item_rate.people_evaluate == list_evaluate[i]){
+                        for (var i = 0; i < list_creator.length; i++) {
+                            if (item_rate.creator == list_creator[i] && item_rate.people_evaluate == list_evaluate[i]) {
                                 list_creator.pull(i);
                                 list_evaluate.pull(i);
                                 i--;
@@ -229,33 +231,35 @@ class RealServer {
                     });
                 });
 
-                for(var i =0; i< list_creator.length; i++) {
+                for (var i = 0; i < list_creator.length; i++) {
                     newRate = new Rate();
                     newRate.creator = list_creator[i];
                     newRate.people_evaluate = list_evaluate[i];
-                    newRate.point = 6;
-                    newRate.update_date = Date.now();
-                    newRate.content = "Hệ thống tự đánh giá";
-                    newRate.save((err,newRating) => {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log("tạo thành công rating với ID: "+newRating._id.toString());
-                            // Xử lí update rating average: điểm đánh giá từng thằng trong meeting
-                            Meeting.findById(newRating.meeting).populate('list_point_average').exec((err,meeting)=> {
-                                meeting.list_point_average.forEach(item => {
-                                    if (item.user == newRate.people_evaluate) {
-                                        item.point_sum += newRate.point;
-                                        count_people ++;
-                                        item.save((err) => {
-                                            if (err) {
-                                                console.log(err);
-                                            }
-                                        });
-                                    }
+                    User.findById(list_evaluate[i]).exec((err, user) => {
+                        newRate.point = user.point_default;
+                        newRate.update_date = Date.now();
+                        newRate.content = "Hệ thống tự đánh giá";
+                        newRate.save((err, newRating) => {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log("tạo thành công rating với ID: " + newRating._id.toString());
+                                // Xử lí update rating average: điểm đánh giá từng thằng trong meeting
+                                Meeting.findById(newRating.meeting).populate('list_point_average').exec((err, meeting) => {
+                                    meeting.list_point_average.forEach(item => {
+                                        if (item.user == newRate.people_evaluate) {
+                                            item.point_sum += newRate.point;
+                                            count_people++;
+                                            item.save((err) => {
+                                                if (err) {
+                                                    console.log(err);
+                                                }
+                                            });
+                                        }
+                                    });
                                 });
-                            });
-                        }
+                            }
+                        });
                     });
                 }
             });
@@ -263,6 +267,61 @@ class RealServer {
             console.log(err);
         })
     }
+
+    getVoucherRealTime() {
+        request("https://www.hotdeal.vn/ho-chi-minh/an-uong/?field=discountValue&sort=desc", function (err, response, body) {
+            if (err) {
+                return res.json({
+                    success: false,
+                    message: err,
+                    data: {}
+                }).status(404);
+            } else {
+                var $ = cheerio.load(body);
+                var data = $(body).find("div.product-kind-1");
+                var list_voucher = [];
+                data.each(function (index, element) {
+                        var newVoucher = new Voucher();
+
+                        let image = $(this).find('.product__image > a > img').attr('data-original');
+                        let title = $(this).find('.product__header .product__title > a').text();
+                        let location = $(this).find('.item__location').text();
+                        let price = $(this).find('._product_price .price__value').text();
+                        let price_old = $(this).find('._product_price_old .price__value').text();
+                        let price_discount = $(this).find('._product_price .price__discount').text();
+                        let link = "https://www.hotdeal.vn" + element["attribs"]["data-url"];
+                        let host = "Hot Deal";
+
+                        newVoucher.image = image;
+                        newVoucher.title = title;
+                        newVoucher.location = location;
+                        newVoucher.price = price;
+                        newVoucher.price_old = price_old;
+                        newVoucher.price_discount = price_discount;
+                        newVoucher.link = link;
+                        newVoucher.host = host;
+
+                    list_voucher.push(newVoucher);
+                });
+
+                Voucher.remove({},function(err){
+                    if(err) {
+                        console.log(err);
+                        return;
+                    } else {
+                        Voucher.create(list_voucher, function(err) {
+                            if(err) {
+                                console.log(err);
+                            } else {
+                                console.log("luu thanh cong list voucher");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+    
 }
 
 module.exports = RealServer;
