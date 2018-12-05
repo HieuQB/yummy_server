@@ -10,6 +10,8 @@ var VoucherSchema = new Schema({
     price_old: {type: String},
     price_discount: {type: String},
     link: {type: String},
+    rate: {type: String},
+    store: {type: String},
     host: {type: String}
 }, {
     versionKey: false

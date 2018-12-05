@@ -25,6 +25,59 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                     message: `Error is : ${err}`
                 });
             } else {
+                User.aggregate([
+                    {
+                        $geoNear: {
+                            near: newPost.location,
+                            distanceField: 'latlngAddress'
+                        },
+                        'myFavorite': { $in: [newPost.categories] }
+                    }
+                ]).limit(10)
+                    .exec((err, list_user) => {
+                        if (err) {
+                            console.log(err);
+                        } else if (list_user.length > 0) {
+                            // NOti tới thông tin bài viết
+                            list_user.forEach((user) => {
+                                // Create Notification in Database
+                                var newNoti = new Notification({
+                                    user_id: user,
+                                    title:  newPost.creator.fullName.toString() + " vừa đăng một bài viết ở gần bạn: "+ newPost.content,
+                                    image: newPost.creator.avatar,
+                                    content: { type: 1, data: newPost } // 1 = type Post
+                                });
+
+                                // Attempt to save the user
+                                newNoti.save(function (err, noti) {
+                                    if (err) {
+                                        return res.json({
+                                            success: false,
+                                            message: err
+                                        }).status(301);
+                                    }
+                                    if (global.socket_list[noti.user_id.toString()] != null) {
+                                        // console.log("goi emit notify-user-" + noti.user_id.toString());
+                                        global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+                                    } else {
+                                        console.log("socket null");
+                                        newWaiting = new WaitingNoti({
+                                            userID: noti.user_id,
+                                            dataNoti: noti
+                                        });
+
+                                        newWaiting.save(function (err, WaitingNoti) {
+                                            if (err) {
+                                                console.log(err);
+                                            } else {
+                                                console.log("THÊM waiting Noti: " + WaitingNoti);
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                        }
+                    });
                 res.json({
                     success: true,
                     data: newPost,

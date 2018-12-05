@@ -161,10 +161,13 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-var minutes = 1,
+
+
+var minutes = 15,
   the_interval = minutes * 60 *1000;
+  var realServer = new RealServer();
 setInterval(function () {
-  realServer = new RealServer();
+  
   realServer.setStatusPost();
   realServer.setStatusMeeting();
   realServer.sendNotiPostExpire();
@@ -172,9 +175,8 @@ setInterval(function () {
   realServer.setDefaultRating();
 }, the_interval);
 
-var minutes = 360,
-  the_interval = minutes * 60 *1000;
+var minutes_1 = 60*6,
+  the_interval_1 = minutes_1 * 60 *1000;
 setInterval(function () {
-  realServer = new RealServer();
-  realServer.getVoucherRealTime();
-}, the_interval);
+  realServer.getVoucher();
+}, the_interval_1);
