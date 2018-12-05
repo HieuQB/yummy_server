@@ -7,30 +7,30 @@ var Voucher = require('../models/VoucherModel');
 const puppeteer = require('puppeteer');
 
 router.get('/', function (req, res, next) {
-    async function run() {
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.goto('https://www.foody.vn/ho-chi-minh/khuyen-mai');
+    // async function run() {
+    //     const browser = await puppeteer.launch();
+    //     const page = await browser.newPage();
+    //     await page.goto('https://www.foody.vn/ho-chi-minh/khuyen-mai');
 
-        const result = await page.evaluate(() => {
-            let data = [];
-            let elements = document.querySelectorAll('.new-promotion-item > .pro-image > a > img');
+    //     const result = await page.evaluate(() => {
+    //         let data = [];
+    //         let elements = document.querySelectorAll('.new-promotion-item > .pro-image > a > img');
 
-            elements.forEach((el) => {
-                data.push(el.getAttribute('src'));
-            })
+    //         elements.forEach((el) => {
+    //             data.push(el.getAttribute('src'));
+    //         })
 
-            return data;
-        });
+    //         return data;
+    //     });
 
-        await browser.close();
+    //     await browser.close();
 
-        return result;
-    }
+    //     return result;
+    // }
 
-    run().then((value) => {
-        console.log(value);
-    });
+    // run().then((value) => {
+    //     console.log(value);
+    // });
 });
 
 router.get('/:page', passport.authenticate('jwt', {
