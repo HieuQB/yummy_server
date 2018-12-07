@@ -317,7 +317,10 @@ class RealServer {
                             } else {
                                 console.log("luu thanh cong " + list_voucher.length.toString() + " voucher hot deal");
                                 async function run() {
-                                    const browser = await puppeteer.launch();
+                                    const browser = await puppeteer.launch({
+                                        headless: true,
+                                        args: ['--no-sandbox']
+                                        });
                                     const page = await browser.newPage();
                                     await page.goto('https://www.foody.vn/ho-chi-minh/khuyen-mai');
 
