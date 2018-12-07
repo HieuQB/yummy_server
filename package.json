@@ -30,8 +30,5 @@
     "socket.io": "*",
     "socketio-file-upload": "^0.4.4",
     "voucher-code-generator": "^1.1.1"
-  },
-  "parserOptions": {
-    "ecmaVersion": 2017
   }
 }

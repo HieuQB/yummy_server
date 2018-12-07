@@ -272,160 +272,160 @@ class RealServer {
         })
     }
 
-    getVoucher() {
-        request("https://www.hotdeal.vn/ho-chi-minh/an-uong/?field=discountValue&sort=desc", function (err, response, body) {
-            if (err) {
-                return res.json({
-                    success: false,
-                    message: err,
-                    data: {}
-                }).status(404);
-            } else {
-                var $ = cheerio.load(body);
-                var data = $(body).find("div.product-kind-1");
-                var list_voucher = [];
-                data.each(function (index, element) {
-                    var newVoucher = new Voucher();
+    // getVoucher() {
+    //     request("https://www.hotdeal.vn/ho-chi-minh/an-uong/?field=discountValue&sort=desc", function (err, response, body) {
+    //         if (err) {
+    //             return res.json({
+    //                 success: false,
+    //                 message: err,
+    //                 data: {}
+    //             }).status(404);
+    //         } else {
+    //             var $ = cheerio.load(body);
+    //             var data = $(body).find("div.product-kind-1");
+    //             var list_voucher = [];
+    //             data.each(function (index, element) {
+    //                 var newVoucher = new Voucher();
 
-                    let image = $(this).find('.product__image > a > img').attr('data-original');
-                    let title = $(this).find('.product__header .product__title > a').text();
-                    let location = $(this).find('.item__location').text().trim();
-                    let price = $(this).find('._product_price .price__value').text();
-                    let price_old = $(this).find('._product_price_old .price__value').text();
-                    let price_discount = $(this).find('._product_price .price__discount').text();
-                    let link = "https://www.hotdeal.vn" + element["attribs"]["data-url"];
-                    let host = "HotDeal";
+    //                 let image = $(this).find('.product__image > a > img').attr('data-original');
+    //                 let title = $(this).find('.product__header .product__title > a').text();
+    //                 let location = $(this).find('.item__location').text().trim();
+    //                 let price = $(this).find('._product_price .price__value').text();
+    //                 let price_old = $(this).find('._product_price_old .price__value').text();
+    //                 let price_discount = $(this).find('._product_price .price__discount').text();
+    //                 let link = "https://www.hotdeal.vn" + element["attribs"]["data-url"];
+    //                 let host = "HotDeal";
 
-                    newVoucher.image = image;
-                    newVoucher.title = title;
-                    newVoucher.location = location;
-                    newVoucher.price = price;
-                    newVoucher.price_old = price_old;
-                    newVoucher.price_discount = price_discount;
-                    newVoucher.link = link;
-                    newVoucher.host = host;
+    //                 newVoucher.image = image;
+    //                 newVoucher.title = title;
+    //                 newVoucher.location = location;
+    //                 newVoucher.price = price;
+    //                 newVoucher.price_old = price_old;
+    //                 newVoucher.price_discount = price_discount;
+    //                 newVoucher.link = link;
+    //                 newVoucher.host = host;
 
-                    list_voucher.push(newVoucher);
-                });
+    //                 list_voucher.push(newVoucher);
+    //             });
 
-                Voucher.remove({}, function (err) {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    } else {
-                        Voucher.create(list_voucher, function (err) {
-                            if (err) {
-                                console.log(err);
-                            } else {
-                                console.log("luu thanh cong " + list_voucher.length.toString() + " voucher hot deal");
-                                async function run() {
-                                    const browser = await puppeteer.launch({
-                                        headless: true,
-                                        args: ['--no-sandbox']
-                                        });
-                                    const page = await browser.newPage();
-                                    await page.goto('https://www.foody.vn/ho-chi-minh/khuyen-mai');
+    //             Voucher.remove({}, function (err) {
+    //                 if (err) {
+    //                     console.log(err);
+    //                     return;
+    //                 } else {
+    //                     Voucher.create(list_voucher, function (err) {
+    //                         if (err) {
+    //                             console.log(err);
+    //                         } else {
+    //                             console.log("luu thanh cong " + list_voucher.length.toString() + " voucher hot deal");
+    //                             async function run() {
+    //                                 const browser = await puppeteer.launch({
+    //                                     headless: true,
+    //                                     args: ['--no-sandbox']
+    //                                     });
+    //                                 const page = await browser.newPage();
+    //                                 await page.goto('https://www.foody.vn/ho-chi-minh/khuyen-mai');
 
-                                    const result = await page.evaluate(() => {
-                                        let list_data = [];
-                                        // List image OK
-                                        let list_image = [];
-                                        let images = document.querySelectorAll('.new-promotion-item > .pro-image > a > img');
-                                        images.forEach((el) => {
-                                            list_image.push(el.getAttribute('src'));
-                                        });
-                                        list_data.push(list_image);
+    //                                 const result = await page.evaluate(() => {
+    //                                     let list_data = [];
+    //                                     // List image OK
+    //                                     let list_image = [];
+    //                                     let images = document.querySelectorAll('.new-promotion-item > .pro-image > a > img');
+    //                                     images.forEach((el) => {
+    //                                         list_image.push(el.getAttribute('src'));
+    //                                     });
+    //                                     list_data.push(list_image);
 
-                                        //   List store OK
-                                        let list_store = [];
-                                        let stores = document.querySelectorAll('.res > .name > a');
-                                        stores.forEach((el) => {
-                                            list_store.push(el.innerText);
-                                        });
-                                        list_data.push(list_store);
+    //                                     //   List store OK
+    //                                     let list_store = [];
+    //                                     let stores = document.querySelectorAll('.res > .name > a');
+    //                                     stores.forEach((el) => {
+    //                                         list_store.push(el.innerText);
+    //                                     });
+    //                                     list_data.push(list_store);
 
-                                        //   List link OK
-                                        let list_link = [];
-                                        let links = document.querySelectorAll('.new-promotion-item > .pro-short-content > .content > .res > .name > a');
-                                        links.forEach((el) => {
-                                            list_link.push("https://www.foody.vn/ho-chi-minh/" + el.getAttribute('href'));
-                                        });
-                                        list_data.push(list_link);
+    //                                     //   List link OK
+    //                                     let list_link = [];
+    //                                     let links = document.querySelectorAll('.new-promotion-item > .pro-short-content > .content > .res > .name > a');
+    //                                     links.forEach((el) => {
+    //                                         list_link.push("https://www.foody.vn/ho-chi-minh/" + el.getAttribute('href'));
+    //                                     });
+    //                                     list_data.push(list_link);
 
-                                        //   List address OK
-                                        let list_location = [];
-                                        let locations = document.querySelectorAll('.new-promotion-item > .pro-short-content > .content > .res > .address');
-                                        locations.forEach((el) => {
-                                            list_location.push(el.innerText);
-                                        });
-                                        list_data.push(list_location);
+    //                                     //   List address OK
+    //                                     let list_location = [];
+    //                                     let locations = document.querySelectorAll('.new-promotion-item > .pro-short-content > .content > .res > .address');
+    //                                     locations.forEach((el) => {
+    //                                         list_location.push(el.innerText);
+    //                                     });
+    //                                     list_data.push(list_location);
 
-                                        //   List rate OK
-                                        let list_rating = [];
-                                        let ratings = document.querySelectorAll('.pro-short-content > .content > .avg-bg-highlight');
-                                        ratings.forEach((el) => {
-                                            list_rating.push(el.innerText);
-                                        });
-                                        list_data.push(list_rating);
+    //                                     //   List rate OK
+    //                                     let list_rating = [];
+    //                                     let ratings = document.querySelectorAll('.pro-short-content > .content > .avg-bg-highlight');
+    //                                     ratings.forEach((el) => {
+    //                                         list_rating.push(el.innerText);
+    //                                     });
+    //                                     list_data.push(list_rating);
 
-                                        // List title OK
-                                        let list_title = [];
-                                        let titles = document.querySelectorAll('.pro-short-content > .title > a > span');
-                                        titles.forEach((el) => {
-                                            list_title.push(el.innerText);
-                                        });
-                                        list_data.push(list_title);
+    //                                     // List title OK
+    //                                     let list_title = [];
+    //                                     let titles = document.querySelectorAll('.pro-short-content > .title > a > span');
+    //                                     titles.forEach((el) => {
+    //                                         list_title.push(el.innerText);
+    //                                     });
+    //                                     list_data.push(list_title);
 
 
-                                        return list_data;
-                                    });
+    //                                     return list_data;
+    //                                 });
 
-                                    await browser.close();
+    //                                 await browser.close();
 
-                                    return result;
-                                }
+    //                                 return result;
+    //                             }
 
-                                run().then((value) => {
-                                    // List VOUCHER
-                                    var list_voucher = [];
-                                    for (var i = 0; i < value[0].length; i++) {
-                                        var newVoucher = new Voucher();
-                                        newVoucher.image = value[0][i];
-                                        newVoucher.title = value[5][i];
-                                        newVoucher.location = value[3][i];
-                                        // newVoucher.price = price;
-                                        // newVoucher.price_old = price_old;
-                                        // newVoucher.price_discount = price_discount;
-                                        newVoucher.link = value[2][i];
-                                        newVoucher.rate = value[4][i];
-                                        newVoucher.store = value[1][i];
-                                        newVoucher.host = "Foody";
+    //                             run().then((value) => {
+    //                                 // List VOUCHER
+    //                                 var list_voucher = [];
+    //                                 for (var i = 0; i < value[0].length; i++) {
+    //                                     var newVoucher = new Voucher();
+    //                                     newVoucher.image = value[0][i];
+    //                                     newVoucher.title = value[5][i];
+    //                                     newVoucher.location = value[3][i];
+    //                                     // newVoucher.price = price;
+    //                                     // newVoucher.price_old = price_old;
+    //                                     // newVoucher.price_discount = price_discount;
+    //                                     newVoucher.link = value[2][i];
+    //                                     newVoucher.rate = value[4][i];
+    //                                     newVoucher.store = value[1][i];
+    //                                     newVoucher.host = "Foody";
 
-                                        list_voucher.push(newVoucher);
-                                    }
+    //                                     list_voucher.push(newVoucher);
+    //                                 }
 
-                                    Voucher.deleteMany({ host: 'Foody' }, function (err) {
-                                        if (err) {
-                                            console.log(err);
-                                            return;
-                                        } else {
-                                            Voucher.create(list_voucher, function (err) {
-                                                if (err) {
-                                                    console.log(err);
-                                                } else {
-                                                    console.log("luu thanh cong " + list_voucher.length.toString() + " voucher foody");
-                                                }
-                                            });
-                                        }
-                                    });
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    }
+    //                                 Voucher.deleteMany({ host: 'Foody' }, function (err) {
+    //                                     if (err) {
+    //                                         console.log(err);
+    //                                         return;
+    //                                     } else {
+    //                                         Voucher.create(list_voucher, function (err) {
+    //                                             if (err) {
+    //                                                 console.log(err);
+    //                                             } else {
+    //                                                 console.log("luu thanh cong " + list_voucher.length.toString() + " voucher foody");
+    //                                             }
+    //                                         });
+    //                                     }
+    //                                 });
+    //                             });
+    //                         }
+    //                     });
+    //                 }
+    //             });
+    //         }
+    //     });
+    // }
 }
 
 module.exports = RealServer;
