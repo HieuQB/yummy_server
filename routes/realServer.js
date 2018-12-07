@@ -10,8 +10,6 @@ var cheerio = require('cheerio');
 var Voucher = require('../models/VoucherModel');
 const puppeteer = require('puppeteer');
 var Voucher = require('../models/VoucherModel');
-var async = require('asyncawait/async');
-var await = require('asyncawait/await');
 
 class RealServer {
 
