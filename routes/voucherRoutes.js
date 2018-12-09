@@ -30,6 +30,11 @@ router.get('/', function (req, res, next) {
 
     run().then((value) => {
         console.log(value);
+        res.json({
+            success: true,
+            data: value,
+            message: "get list voucher success"
+        });
     });
 });
 

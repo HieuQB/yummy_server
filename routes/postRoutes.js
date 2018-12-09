@@ -25,7 +25,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                     message: `Error is : ${err}`
                 });
             } else {
-                User.aggregate([
+                User.aggregate(
                     {
                         $geoNear: {
                             near: newPost.location,
@@ -33,7 +33,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                         },
                         'myFavorite': { $in: [newPost.categories] }
                     }
-                ]).limit(10)
+                ).limit(10)
                     .exec((err, list_user) => {
                         if (err) {
                             console.log(err);
