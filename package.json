@@ -6,7 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "bcrypt": "^2.0.0",
+    "bcrypt": "^2.0.1",
     "body-parser": "~1.18.2",
     "cheerio": "^1.0.0-rc.2",
     "cloud-env": "^0.2.3",
@@ -20,6 +20,7 @@
     "mongoose-auto-increment-fix": "^5.0.2",
     "morgan": "~1.9.0",
     "node-cmd": "^3.0.0",
+    "node-geocoder": "^3.22.0",
     "nodemailer": "^4.6.4",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",

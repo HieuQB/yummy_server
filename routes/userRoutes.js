@@ -65,6 +65,34 @@ router.post('/register', function (req, res) {
     }
 });
 
+router.get('/list_user_near', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    console.log(req.user);
+    User.aggregate([
+        {
+            $geoNear: {
+                near: req.user.latlngAddress.coordinates,
+                distanceField: 'latlngAddress'
+            }
+        }
+    ]).limit(10).sort({ trust_point: -1, main_point: -1 })
+        .exec((err, list_user) => {
+            if (err) {
+                return res.json({
+                    success: false,
+                    message: err
+                }).status(301);
+            }
+            return res.json({
+                success: true,
+                message: "Get list thành công",
+                data: list_user,
+            }).status(200);
+        });
+});
+
 router.post('/changePass', function (req, res) {
     User.findOne({ email: req.body.email }).exec(
         function (err, user) {
@@ -637,7 +665,5 @@ router.post('/rejectRequest', passport.authenticate('jwt', {
         }
     });
 });
-
-
 
 module.exports = router;

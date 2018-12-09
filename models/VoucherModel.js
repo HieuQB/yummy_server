@@ -12,7 +12,8 @@ var VoucherSchema = new Schema({
     link: {type: String},
     rate: {type: String},
     store: {type: String},
-    host: {type: String}
+    host: {type: String},
+    latlngAddress: { coordinates: { type: [Number], index: '2d', spherical: true } }
 }, {
     versionKey: false
 });
