@@ -25,15 +25,17 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                     message: `Error is : ${err}`
                 });
             } else {
-                User.aggregate(
+                User.aggregate([
                     {
                         $geoNear: {
-                            near: newPost.location,
+                            near: newPost.location.coordinates,
                             distanceField: 'latlngAddress'
-                        },
-                        'myFavorite': { $in: [newPost.categories] }
+                        }
+                    },
+                    {
+                        $match: { 'myFavorite': { $in: [newPost.categories] } }
                     }
-                ).limit(10)
+                ]).limit(10)
                     .exec((err, list_user) => {
                         if (err) {
                             console.log(err);
@@ -43,7 +45,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                                 // Create Notification in Database
                                 var newNoti = new Notification({
                                     user_id: user,
-                                    title:  newPost.creator.fullName.toString() + " vừa đăng một bài viết ở gần bạn: "+ newPost.content,
+                                    title: newPost.creator.fullName.toString() + " vừa đăng một bài viết ở gần bạn: " + newPost.content,
                                     image: newPost.creator.avatar,
                                     content: { type: 1, data: newPost } // 1 = type Post
                                 });
@@ -83,6 +85,14 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                     data: newPost,
                     message: 'Success upload new post'
                 })
+
+                // User.find().exec((err, user) => {
+                //     res.json({
+                //         success: true,
+                //         data: user,
+                //         message: 'Success upload new post'
+                //     })
+                // })
             }
         })
     });
