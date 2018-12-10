@@ -33,3 +33,8 @@ thích và khoảng cách. Đây là một ý tưởng mới và trên thị tr�
 ứng dụng đáp ứng được nhu cầu này. Nên có thể xem đây là một bước đi mới, đáp
 ứng được nhu cầu, cũng như xu hướng hiện tại của ngành lập trình ứng dụng di động
 và rất cần được nghiên cứu, khai thác.
+
+
+-------Điện thoại
+https://www.chotot.com/quan-11/mua-ban-dien-thoai/53189278.htm#px=SR-galleryad-[PO-2][PL-top]
+https://www.chotot.com/quan-11/mua-ban-dien-thoai/53189299.htm#px=SR-galleryad-[PO-1][PL-top]
