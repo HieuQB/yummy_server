@@ -98,16 +98,20 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
     });
 });
 
-router.get('/nearme',passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
+router.get('/nearme', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
     Post.aggregate([
+       
         {
             $geoNear: {
                 near: req.user.latlngAddress.coordinates,
                 distanceField: 'location'
             }
+        },
+        { $match: { "is_active": true } },
+        {
+            $limit: 10
         }
     ])
-        .limit(10)
         .exec(function (err, posts) {
             if (err) {
                 res.json({

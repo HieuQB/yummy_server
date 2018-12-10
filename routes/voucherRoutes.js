@@ -187,12 +187,11 @@ router.get('/', function (req, res, next) {
                                         newVoucher.rate = value[4][i];
                                         newVoucher.store = value[1][i];
                                         newVoucher.host = "Foody";
-
                                         list_voucher_foody.push(newVoucher);
                                     }
 
-                                    let promiseArr = list_voucher_foody.map(function (voucher) {
-                                        var myPromise = new Promise(function (resolve, reject) {
+                                    let promiseArr_Foody = list_voucher_foody.map(function (voucher) {
+                                        var myPromise_Foody = new Promise(function (resolve, reject) {
                                             var geocoder = NodeGeocoder(options);
                                             geocoder.geocode(voucher.location)
                                                 .then(function (res) {
@@ -203,23 +202,22 @@ router.get('/', function (req, res, next) {
                                                 });
                                         });
 
-                                        myPromise.then(function (result) {
+                                        myPromise_Foody.then(function (result) {
                                             if (result && result[0]) {
                                                 let coordinates = [result[0].longitude, result[0].latitude]
                                                 voucher.latlngAddress.coordinates = coordinates;
-                                                console.log(voucher);
+                                                // console.log(voucher_foody);
                                             }
-
                                             return voucher;
-
                                         }, function (err) {
                                             console.log(err);
                                             return voucher;
                                         });
                                     });
-
-                                    Promise.all(promiseArr).then(function (list) {
+                                    Promise.all(promiseArr_Foody).then(function (list) {
                                         // console.log(list_voucher_foody);
+                                        // console.log(list);
+                                        console.log(promiseArr_Foody);
                                         Voucher.create(list_voucher_foody, function (err) {
                                             if (err) {
                                                 console.log(err);
@@ -329,7 +327,7 @@ router.get('/list_voucher_near/:page', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     var page = req.params.page;
-    Voucher.aggregate([
+    Voucher.aggregate(
         {
             $geoNear: {
                 near: req.user.latlngAddress.coordinates,
@@ -337,11 +335,12 @@ router.get('/list_voucher_near/:page', passport.authenticate('jwt', {
             }
         },
         {
-            $facet: {
-                data: [{ $skip: page * 10 }, { $limit: 10 }] // add projection here wish you re-shape the docs
-            }
+            $skip: page *10
+        },
+        {
+            $limit: 10
         }
-    ])
+    )
         .exec((err, list_voucher) => {
             if (err) {
                 return res.json({
