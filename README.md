@@ -45,3 +45,25 @@ Như đã trình bày tại mục ĐẶT VẤN ĐỀ, ngày càng có nhiều �
 
 Bên cạnh những chức năng cơ bản của một mạng xã hội như đang bài viết, bình luận, chia sẻ, gửi thông báo, xem thông tin trang cá nhân. Yummy còn hỗ trợ người dùng tìm nhanh người đi ăn chung và gửi thông báo đến người đó ngay khi người đó online. Và để tăng phần tin cậy, Yummy xây dựng hệ thống tính điểm tin cậy và ghi lại lịch sử đi ăn chung, kèm theo đó là những nhận xét và điểm đánh giá của những người đi ăn cùng, qua đó giúp người dùng có cái nhìn khách quan hơn, chính xác hơn trước khi đồng ý đi ăn cùng nhau.
 
+------3.3.2.Yêu cầu phi chức năng
+
+-Yêu cầu về giao diện: Giao diện hệ thống gần gũi với dạng menu truyền thống, đơn giản với đại đa số người dùng. Giao diện mang lại cảm giác thân thiện, hướng người dùng, tính tương tác cao.
+
+-Yêu cầu chất lượng:
+oTính tiến hóa: 
+Dễ dàng nâng cấp khi muốn nâng cao tính năng sẵn có nhờ vào sự hệ thống hóa trong việc xử lý.
+Dễ dàng mở rộng khi ứng dụng được đón nhận rộng rãi và nhu cầu người dùng tăng lên.
+oTính tiện dụng:
+Hệ thống có giao diện trực quan, thân thiện và dễ sử dụng
+Các nút ấn và dòng text hiển thị trực quan nội dung muốn truyền đạt
+Hệ thống có tính tự động cao (Tự động tính toán và cho điểm rating trung bình, tự động gửi thông báo cho user khi bài viết hết hạn, ...).
+oTính hiệu quả:
+Hệ thống hiển thị trực quan và chi tiết các voucher đang hot từ các trang hệ thống nổi tiếng hiện nay như: Foody hay Hotdeal, qua đó góp phần hiệu quả giúp người dùng có thêm nhiều sự lựa chọn phù hợp để lên kế hoạch đi ăn.
+Qua việc lấy thông tin vị trí hiện tại, hệ thống hiển thị các thông tin user, bài viết và voucher gần vị trí của người dùng. 
+Hệ thống hoạt động ổn định và đáng tin cậy.
+Hiệu năng hệ thống tốt bằng việc sử dụng server của Google Cloud Flatform.
+Hỗ trợ tìm kiếm nhanh người muốn đi ăn chung.
+oTính tương thích:
+Hoạt động tốt trên nhiều hệ điều hành android khác nhau (Từ API 19 trở lên)
+Tương thích với hầu hết các Smartphone Android trên thị trường hiện nay (Từ API 19 trở lên).
+
