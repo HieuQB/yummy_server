@@ -9,26 +9,23 @@ var NodeGeocoder = require('node-geocoder');
 
 var options = {
     provider: 'google',
-
     // Optional depending on the providers
     httpAdapter: 'https', // Default
-    apiKey: 'AIzaSyAYeioT8rfZ8cneHLICZFdF3K2PCCg1tPY', // for Mapquest, OpenCage, Google Premier
+    apiKey: 'AIzaSyA3h0o1-rFTo8SIQd-Q4NwE7rT_c9JZ9ds', // for Mapquest, OpenCage, Google Premier
     formatter: null         // 'gpx', 'string', ...
 };
 
+var geocoder = NodeGeocoder(options);
 
 router.get('/', function (req, res, next) {
     request("https://www.hotdeal.vn/ho-chi-minh/an-uong/?field=discountValue&sort=desc", function (err, response, body) {
         if (err) {
-            return res.json({
-                success: false,
-                message: err,
-                data: {}
-            }).status(404);
+            console.log(err);
+            return;
         } else {
             var $ = cheerio.load(body);
             var data = $(body).find("div.product-kind-1");
-            var list_voucher = [];
+            var list_voucher_hotdeal = [];
             data.each(function (index, element) {
                 var newVoucher = new Voucher();
 
@@ -50,13 +47,12 @@ router.get('/', function (req, res, next) {
                 newVoucher.link = link;
                 newVoucher.host = host;
 
-                list_voucher.push(newVoucher);
+                list_voucher_hotdeal.push(newVoucher);
 
             });
-            // console.log(list_voucher);
-            let promiseArr = list_voucher.map(function (voucher) {
-                var myPromise = new Promise(function (resolve, reject) {
-                    var geocoder = NodeGeocoder(options);
+            let promiseArrHot = list_voucher_hotdeal.map(function (voucher) {
+                var myPromiseHot = new Promise(function (resolve, reject) {
+
                     geocoder.geocode(voucher.location)
                         .then(function (res) {
                             resolve(res);
@@ -65,46 +61,33 @@ router.get('/', function (req, res, next) {
                             reject(err);
                         });
                 });
-
-                myPromise.then(function (result) {
+                myPromiseHot.then(function (result) {
                     if (result && result[0]) {
                         let coordinates = [result[0].longitude, result[0].latitude]
                         voucher.latlngAddress.coordinates = coordinates;
-                        // console.log(voucher.latlngAddress);
                     }
-
+                    // console.log(voucher);
                     return voucher;
 
                 }, function (err) {
                     console.log(err);
                     return voucher;
-                    // return res.json({
-                    //     success: false,
-                    //     message: err,
-                    // }).status(404);
                 });
             });
 
-            Promise.all(promiseArr).then(function (list) {
+            Promise.all(promiseArrHot).then(function (list) {
                 Voucher.remove({}, function (err) {
                     if (err) {
                         console.log(err);
-                        return res.json({
-                            success: false,
-                            message: err,
-                        }).status(404);
-                        return;
                     } else {
-                        // console.log(list_voucher);
-                        Voucher.create(list_voucher, function (err) {
+                        // console.log("aaaaaaaaaaaaaaaaaaaaa");
+                        // console.log(list_voucher_hotdeal[1]);
+                        Voucher.create(list_voucher_hotdeal, function (err) {
+
                             if (err) {
                                 console.log(err);
-                                return res.json({
-                                    success: false,
-                                    message: err,
-                                }).status(404);
                             } else {
-                                console.log("luu thanh cong " + list_voucher.length.toString() + " voucher hot deal");
+                                console.log("luu thanh cong " + list_voucher_hotdeal.length.toString() + " voucher hot deal");
                                 async function run() {
                                     const browser = await puppeteer.launch({
                                         headless: true,
@@ -162,8 +145,6 @@ router.get('/', function (req, res, next) {
                                             list_title.push(el.innerText);
                                         });
                                         list_data.push(list_title);
-
-
                                         return list_data;
                                     });
 
@@ -180,9 +161,6 @@ router.get('/', function (req, res, next) {
                                         newVoucher.image = value[0][i];
                                         newVoucher.title = value[5][i];
                                         newVoucher.location = value[3][i];
-                                        // newVoucher.price = price;
-                                        // newVoucher.price_old = price_old;
-                                        // newVoucher.price_discount = price_discount;
                                         newVoucher.link = value[2][i];
                                         newVoucher.rate = value[4][i];
                                         newVoucher.store = value[1][i];
@@ -190,9 +168,8 @@ router.get('/', function (req, res, next) {
                                         list_voucher_foody.push(newVoucher);
                                     }
 
-                                    let promiseArr_Foody = list_voucher_foody.map(function (voucher) {
-                                        var myPromise_Foody = new Promise(function (resolve, reject) {
-                                            var geocoder = NodeGeocoder(options);
+                                    let promiseArr = list_voucher_foody.map(function (voucher) {
+                                        var myPromise = new Promise(function (resolve, reject) {
                                             geocoder.geocode(voucher.location)
                                                 .then(function (res) {
                                                     resolve(res);
@@ -202,57 +179,44 @@ router.get('/', function (req, res, next) {
                                                 });
                                         });
 
-                                        myPromise_Foody.then(function (result) {
+                                        myPromise.then(function (result) {
                                             if (result && result[0]) {
                                                 let coordinates = [result[0].longitude, result[0].latitude]
                                                 voucher.latlngAddress.coordinates = coordinates;
-                                                // console.log(voucher_foody);
                                             }
+
                                             return voucher;
+
                                         }, function (err) {
-                                            console.log(err);
+                                            // console.log(err);
                                             return voucher;
                                         });
                                     });
-                                    Promise.all(promiseArr_Foody).then(function (list) {
-                                        // console.log(list_voucher_foody);
-                                        // console.log(list);
-                                        console.log(promiseArr_Foody);
+
+                                    Promise.all(promiseArr).then(function (list) {
+                                        //  console.log(list_voucher_foody);
                                         Voucher.create(list_voucher_foody, function (err) {
                                             if (err) {
                                                 console.log(err);
-                                                return res.json({
-                                                    success: false,
-                                                    message: err,
-                                                }).status(404);
                                             } else {
+                                                // console.log(list_voucher_foody);
                                                 console.log("luu thanh cong " + list_voucher_foody.length.toString() + " voucher foody");
-
                                                 return res.json({
                                                     success: true,
                                                     message: "thành công",
                                                 }).status(200);
-
                                             }
                                         });
                                     }).catch(function (err) {
-                                        return res.json({
-                                            success: false,
-                                            message: err,
-                                        }).status(404);
+                                        console.log(err);
                                     });
-
-
                                 });
                             }
                         });
                     }
                 });
             }).catch(function (err) {
-                return res.json({
-                    success: false,
-                    message: err,
-                }).status(404);
+                console.log(err);
             });
 
 
@@ -335,7 +299,7 @@ router.get('/list_voucher_near/:page', passport.authenticate('jwt', {
             }
         },
         {
-            $skip: page *10
+            $skip: page * 10
         },
         {
             $limit: 10
