@@ -352,8 +352,9 @@ router.get('/list_voucher_near/:page', passport.authenticate('jwt', {
     var page = req.params.page;
     Voucher.aggregate(
         {
+            
             $geoNear: {
-                near: { type: "Point", coordinates: [ -73.9667, 40.78 ] },
+                near:  req.user.latlngAddress.coordinates ,
                 distanceField: 'latlngAddress'
             }
         },
