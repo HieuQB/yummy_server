@@ -52,12 +52,17 @@ router.get('/', function (req, res, next) {
             });
             let promiseArrHot = list_voucher_hotdeal.map(function (voucher) {
                 var myPromiseHot = new Promise(function (resolve, reject) {
-
-                    geocoder.geocode(voucher.location)
+                    var place = voucher.location;
+                    if(voucher.location == '' || voucher.location == 'Nhiều địa điểm'){
+                        console.log(voucher.location);
+                        place = 'Động Phong Nha Kẻ Bàng'
+                    }
+                    geocoder.geocode(place)
                         .then(function (res) {
                             resolve(res);
                         })
                         .catch(function (err) {
+                            // console.log(err);
                             reject(err);
                         });
                 });
@@ -80,8 +85,6 @@ router.get('/', function (req, res, next) {
                     if (err) {
                         console.log(err);
                     } else {
-                        // console.log("aaaaaaaaaaaaaaaaaaaaa");
-                        // console.log(list_voucher_hotdeal[1]);
                         Voucher.create(list_voucher_hotdeal, function (err) {
 
                             if (err) {
@@ -188,7 +191,7 @@ router.get('/', function (req, res, next) {
                                             return voucher;
 
                                         }, function (err) {
-                                            // console.log(err);
+                                            console.log(err);
                                             return voucher;
                                         });
                                     });
@@ -253,6 +256,63 @@ router.get('/:page', passport.authenticate('jwt', {
         });
 });
 
+router.get('/test_geocoder', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+
+    var myPromiseHot = new Promise(function (resolve, reject) {
+
+        geocoder.geocode("Cau vuot linh xuan")
+            .then(function (res) {
+                resolve(res);
+            })
+            .catch(function (err) {
+                reject(err);
+            });
+    });
+    myPromiseHot.then(function (result) {
+        // if (result && result[0]) {
+        //     let coordinates = [result[0].longitude, result[0].latitude]
+        //     voucher.latlngAddress.coordinates = coordinates;
+        // }
+        if (result) {
+            // console.log(result);
+            res.json({
+                success: true,
+                data: result,
+                message: "thành công"
+            });
+        }
+        // console.log(voucher);
+        // return voucher;
+
+    }, function (err) {
+        res.json({
+            success: false,
+            data: err,
+            message: "loi roi"
+        });
+    });
+
+    // geocoder.geocode("Cầu vượt linh xuân")
+    // .then(function (response) {
+    //     res.json({
+    //         success: true,
+    //         data: response,
+    //         message: "thành công"
+    //     });
+    // })
+    // .catch(function (err) {
+    //     res.json({
+    //         success: true,
+    //         data: err,
+    //         message: "Thất bại"
+    //     });
+    // });
+});
+
+
 router.post('/search_voucher/:page', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
@@ -269,7 +329,6 @@ router.post('/search_voucher/:page', passport.authenticate('jwt', {
                     message: `Error: ${err}`
                 });
             else if (list_voucher) {
-
                 res.json({
                     success: true,
                     data: list_voucher,
@@ -294,7 +353,7 @@ router.get('/list_voucher_near/:page', passport.authenticate('jwt', {
     Voucher.aggregate(
         {
             $geoNear: {
-                near: req.user.latlngAddress.coordinates,
+                near: { type: "Point", coordinates: [ -73.9667, 40.78 ] },
                 distanceField: 'latlngAddress'
             }
         },

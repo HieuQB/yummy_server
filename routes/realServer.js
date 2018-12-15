@@ -316,12 +316,16 @@ class RealServer {
                 });
                 let promiseArr = list_voucher.map(function (voucher) {
                     var myPromise = new Promise(function (resolve, reject) {
-                        var geocoder = NodeGeocoder(options);
-                        geocoder.geocode(voucher.location)
+                        var place = voucher.location;
+                        if(voucher.location == '' || voucher.location == 'Nhiều địa điểm'){
+                            place = 'Động Phong Nha Kẻ Bàng'
+                        }
+                        geocoder.geocode(place)
                             .then(function (res) {
                                 resolve(res);
                             })
                             .catch(function (err) {
+                                console.log(err);
                                 reject(err);
                             });
                     });
