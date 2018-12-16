@@ -29,7 +29,7 @@ var UserSchema = new Schema({
     address: {
         type: String,
     },
-    latlngAddress: { coordinates: { type: [Number], index: '2d', spherical: true } },
+    latlngAddress: { coordinates: { type: [Number], index: '2d', spherical: true , default: [106.779495,10.863731]} },
     gender: {
         type: Number, // 1 là nam, 0 là nữ
     },

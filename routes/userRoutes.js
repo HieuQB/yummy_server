@@ -39,7 +39,7 @@ router.post('/register', function (req, res) {
             gender: req.body.gender,
             birthday: req.body.birthday,
             phone: req.body.phone,
-            latlngAdress: req.body.latlngAdress,
+            latlngAddress: req.body.latlngAddress,
             myCharacter: req.body.myCharacter,
             myStyle: req.body.myStyle,
             targetCharacter: req.body.targetCharacter,

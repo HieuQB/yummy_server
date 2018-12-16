@@ -13,6 +13,8 @@ var PostSchema = new Schema({
     is_active: {type: Boolean, default: true},
     content: {type: String},
     location: {coordinates: {type: [Number], index: '2d', spherical: true}},
+    // location_server: {coordinates: {type: [Number], index: '2d', spherical: true}},
+    latlngAddress: {type: [Number]},
     place: {type: String},
     comments: [{type: Number, ref: 'Comment'}],
     time: {type: Date,default: Date.now()},

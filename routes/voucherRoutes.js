@@ -350,15 +350,15 @@ router.get('/list_voucher_near/:page', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     var page = req.params.page;
+    console.log(req.user);
     Voucher.aggregate(
         {
             $geoNear: {
-                // near:  req.user.latlngAddress.coordinates ,
-                near:  [106.779495,10.863731],
+                near:  req.user.latlngAddress.coordinates ,
+                // near:  re,
                 distanceField: 'latlngAddress'
             }
         }
-       
     )
         .exec((err, list_voucher) => {
             if (err) {

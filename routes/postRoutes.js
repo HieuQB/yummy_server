@@ -15,6 +15,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
     delete req.body.categories;
     const newPost = new Post(req.body);
     newPost.creator = req.user;
+    newPost.latlngAddress = [newPost.location.coordinates[0],newPost.location.coordinates[1]];
     Post.addCategoryToDatabase(categories, (categories) => {
         newPost.categories = categories;
         newPost.save((err) => {
@@ -99,8 +100,8 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
 });
 
 router.get('/nearme', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
+    console.log(req.user.latlngAddress.coordinates);
     Post.aggregate([
-       
         {
             $geoNear: {
                 near: req.user.latlngAddress.coordinates,
@@ -512,7 +513,7 @@ router.put('/:postId', passport.authenticate('jwt', {
             req.post[p] = req.body[p];
         }
         req.post.modify_date = Date.now();
-
+        req.post.latlngAddress = [req.post.location.coordinates[0],req.post.location.coordinates[1]]
         req.post.save((err) => {
             if (err)
                 res.json({

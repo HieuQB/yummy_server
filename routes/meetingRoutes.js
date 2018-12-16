@@ -148,7 +148,6 @@ router.post('/create_meeting', passport.authenticate('jwt', {
     });
 });
 
-
 //  Thêm comment cho cuộc hẹn
 router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
     session: false,
