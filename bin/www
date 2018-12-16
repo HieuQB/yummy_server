@@ -177,5 +177,5 @@ setInterval(function () {
 var minutes_1 = 360,
   the_interval_1 = minutes_1 * 60 *1000;
 setInterval(function () {
-  realServer.getVoucher();
+  // realServer.getVoucher();
 }, the_interval_1);

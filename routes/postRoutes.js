@@ -100,11 +100,10 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
 });
 
 router.get('/nearme', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
-    console.log(req.user.latlngAddress.coordinates);
     Post.aggregate([
         {
             $geoNear: {
-                near: req.user.latlngAddress.coordinates,
+                near: [req.user.latlngAddress.coordinates[0],req.user.latlngAddress.coordinates[1]],
                 distanceField: 'location'
             }
         },
@@ -121,7 +120,7 @@ router.get('/nearme', passport.authenticate('jwt', { session: false, failureRedi
                     message: `Error is : ${err}`
                 });
             } else {
-                Post.populate(posts, [{ path: 'creator' }, { path: 'category' }, { path: 'reaction' }], function (err, results) {
+                Post.populate(posts, [{ path: 'creator' }, { path: 'category' }, { path: 'reaction' },{ path: 'categories' }], function (err, results) {
                     if (err) {
                         res.json({
                             success: false,

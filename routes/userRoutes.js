@@ -73,7 +73,7 @@ router.get('/list_user_near', passport.authenticate('jwt', {
     User.aggregate([
         {
             $geoNear: {
-                near: req.user.latlngAddress.coordinates,
+                near: [req.user.latlngAddress.coordinates[0],req.user.latlngAddress.coordinates[1]],
                 distanceField: 'latlngAddress'
             }
         }
