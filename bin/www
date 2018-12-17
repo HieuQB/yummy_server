@@ -161,7 +161,7 @@ setInterval(function () {
   realServer.setDefaultRating();
 }, the_interval);
 
-var minutes_1 = 360, // 6 tiếng thì update cái này 1 lần
+var minutes_1 = 180, // 3 tiếng thì update cái này 1 lần
   the_interval_1 = minutes_1 * 60 *1000;
 setInterval(function () {
   realServer.getVoucher();
