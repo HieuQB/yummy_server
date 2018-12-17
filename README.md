@@ -67,3 +67,13 @@ oTính tương thích:
 Hoạt động tốt trên nhiều hệ điều hành android khác nhau (Từ API 19 trở lên)
 Tương thích với hầu hết các Smartphone Android trên thị trường hiện nay (Từ API 19 trở lên).
 
+4.6.1	Đăng nhập (Nếu chức năng có nhiều màn hình nhỏ thì chia thêm các mục nhỏ hơn nữa, các mục đều có các phần dưới đây)
+KHÚC NÀY CHỤP CÁI HÌNH BỎ VÔ (nhớ có đánh số các thao tác với người dùng như textbox hay button, số thứ tự này thì nên là đánh theo các hành vi xảy ra trước thì đánh số trước)
+                                      HÌnh 1.1 Giao diện đăng nhập
+    4.6.1.1	Mô tả
+      Chức năng đăng nhập dùng để làm gì?
+      Giao diện tổng quát như nào
+      Có những chức năng chính nào trên giao diện
+    4.6.1.2	Điều hướng và tương tác người dùng.
+      Mô tả chi tiết công việc của mấy cái số đã đánh được trên hình
+
