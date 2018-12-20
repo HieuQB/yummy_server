@@ -139,157 +139,6 @@ router.get('/nearme', passport.authenticate('jwt', { session: false, failureRedi
         });
 });
 
-router.use('/:postId', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
-    Post.findById(req.params.postId).populate('creator').populate('categories').populate('interested_people')
-        .populate({
-            path: 'comments',
-            model: 'Comment',
-            populate: {
-                path: 'creator',
-                model: 'User'
-            }
-        })
-        .exec((err, post) => {
-            if (err)
-                res.json({
-                    success: false,
-                    message: `Error: ${err}`
-                });
-            else if (post) {
-                req.post = post;
-                next();
-            }
-            else {
-                res.json({
-                    success: false,
-                    data: {},
-                    message: "post not found"
-                });
-            }
-        });
-});
-
-router.get('/:postId', function (req, res, next) {
-    res.json({
-        success: true,
-        data: req.post,
-        message: "success"
-    });
-});
-
-router.post('/:postId/interested', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
-    var interestedUser = null;
-    req.post.interested_people.forEach((person) => {
-        if (person.id === req.user.id) {
-            interestedUser = person
-        }
-    });
-    if (interestedUser) {
-        req.post.interested_people.pull(interestedUser);
-        // Create Notification in Database
-        var newNoti = new Notification({
-            user_id: req.post.creator.id,
-            title: interestedUser.fullName.toString() + " không còn quan tâm bài post của bạn nữa",
-            image: interestedUser.avatar,
-            content: { type: 1, data: req.post } // 1 = type Post
-        });
-
-        // Attempt to save the user
-        newNoti.save(function (err, noti) {
-            if (err) {
-                return res.json({
-                    success: false,
-                    message: err
-                }).status(301);
-            }
-            // if (global.socket_list[req.post.creator.id.toString()] != null) {
-            //     console.log("goi emit notify-user-" + req.post.creator.id.toString());
-            //     global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
-            // } else {
-            //     console.log("socket null");
-            // }
-            if (global.socket_list[noti.user_id.toString()] != null) {
-                console.log("goi emit notify-user-" + noti.user_id.toString());
-                global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
-            } else {
-                console.log("socket null");
-                newWaiting = new WaitingNoti({
-                    userID: noti.user_id,
-                    dataNoti: noti
-                });
-
-                newWaiting.save(function (err, WaitingNoti) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log("THÊM waiting Noti: " + WaitingNoti);
-                    }
-                });
-            }
-        });
-    } else {
-        req.post.interested_people.push(req.user);
-        // Create Notification in Database
-        var newNoti = new Notification({
-            user_id: req.post.creator.id,
-            // type: 1, // 1 = type Post
-            title: req.user.fullName.toString() + " vừa quan tâm bài post của bạn",
-            image: req.user.avatar,
-            content: { type: 1, data: req.post }
-        });
-
-        // Attempt to save the user
-        newNoti.save(function (err, noti) {
-            if (err) {
-                return res.json({
-                    success: false,
-                    message: err
-                }).status(301);
-            }
-            // if (global.socket_list[req.post.creator.id.toString()] != null) {
-            //     console.log("goi emit notify-user-" + req.post.creator.id.toString());
-            //     global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
-            // } else {
-            //     console.log("socket null");
-            // }
-            if (global.socket_list[noti.user_id.toString()] != null) {
-                console.log("goi emit notify-user-" + noti.user_id.toString());
-                global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
-            } else {
-                console.log("socket null");
-                newWaiting = new WaitingNoti({
-                    userID: noti.user_id,
-                    dataNoti: noti
-                });
-
-                newWaiting.save(function (err, WaitingNoti) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log("THÊM waiting Noti: " + WaitingNoti);
-                    }
-                });
-            }
-        });
-    }
-    req.post.save((err) => {
-        if (err) {
-            res.status(500);
-            res.json({
-                success: false,
-                message: `Error ${err}`
-            })
-        } else {
-
-            res.json({
-                success: true,
-                message: 'Success',
-                data: req.post
-            });
-        }
-    })
-});
-
 // Get list bài viết active mà theo status quan tâm hoặc chưa quan tâm
 router.post('/:page/list', passport.authenticate('jwt', {
     session: false,
@@ -589,5 +438,158 @@ router.get('/:postId/interested_list', passport.authenticate('jwt', {
             }
         });
 });
+
+
+router.use('/:postId', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
+    Post.findById(req.params.postId).populate('creator').populate('categories').populate('interested_people')
+        .populate({
+            path: 'comments',
+            model: 'Comment',
+            populate: {
+                path: 'creator',
+                model: 'User'
+            }
+        })
+        .exec((err, post) => {
+            if (err)
+                res.json({
+                    success: false,
+                    message: `Error: ${err}`
+                });
+            else if (post) {
+                req.post = post;
+                next();
+            }
+            else {
+                res.json({
+                    success: false,
+                    data: {},
+                    message: "post not found"
+                });
+            }
+        });
+});
+
+router.get('/:postId', function (req, res, next) {
+    res.json({
+        success: true,
+        data: req.post,
+        message: "success"
+    });
+});
+
+router.post('/:postId/interested', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
+    var interestedUser = null;
+    req.post.interested_people.forEach((person) => {
+        if (person.id === req.user.id) {
+            interestedUser = person
+        }
+    });
+    if (interestedUser) {
+        req.post.interested_people.pull(interestedUser);
+        // Create Notification in Database
+        var newNoti = new Notification({
+            user_id: req.post.creator.id,
+            title: interestedUser.fullName.toString() + " không còn quan tâm bài post của bạn nữa",
+            image: interestedUser.avatar,
+            content: { type: 1, data: req.post } // 1 = type Post
+        });
+
+        // Attempt to save the user
+        newNoti.save(function (err, noti) {
+            if (err) {
+                return res.json({
+                    success: false,
+                    message: err
+                }).status(301);
+            }
+            // if (global.socket_list[req.post.creator.id.toString()] != null) {
+            //     console.log("goi emit notify-user-" + req.post.creator.id.toString());
+            //     global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
+            // } else {
+            //     console.log("socket null");
+            // }
+            if (global.socket_list[noti.user_id.toString()] != null) {
+                console.log("goi emit notify-user-" + noti.user_id.toString());
+                global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+            } else {
+                console.log("socket null");
+                newWaiting = new WaitingNoti({
+                    userID: noti.user_id,
+                    dataNoti: noti
+                });
+
+                newWaiting.save(function (err, WaitingNoti) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("THÊM waiting Noti: " + WaitingNoti);
+                    }
+                });
+            }
+        });
+    } else {
+        req.post.interested_people.push(req.user);
+        // Create Notification in Database
+        var newNoti = new Notification({
+            user_id: req.post.creator.id,
+            // type: 1, // 1 = type Post
+            title: req.user.fullName.toString() + " vừa quan tâm bài post của bạn",
+            image: req.user.avatar,
+            content: { type: 1, data: req.post }
+        });
+
+        // Attempt to save the user
+        newNoti.save(function (err, noti) {
+            if (err) {
+                return res.json({
+                    success: false,
+                    message: err
+                }).status(301);
+            }
+            // if (global.socket_list[req.post.creator.id.toString()] != null) {
+            //     console.log("goi emit notify-user-" + req.post.creator.id.toString());
+            //     global.socket_list[req.post.creator.id.toString()].emit("notify-user-" + req.post.creator.id.toString(), { nomal: noti });
+            // } else {
+            //     console.log("socket null");
+            // }
+            if (global.socket_list[noti.user_id.toString()] != null) {
+                console.log("goi emit notify-user-" + noti.user_id.toString());
+                global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+            } else {
+                console.log("socket null");
+                newWaiting = new WaitingNoti({
+                    userID: noti.user_id,
+                    dataNoti: noti
+                });
+
+                newWaiting.save(function (err, WaitingNoti) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("THÊM waiting Noti: " + WaitingNoti);
+                    }
+                });
+            }
+        });
+    }
+    req.post.save((err) => {
+        if (err) {
+            res.status(500);
+            res.json({
+                success: false,
+                message: `Error ${err}`
+            })
+        } else {
+
+            res.json({
+                success: true,
+                message: 'Success',
+                data: req.post
+            });
+        }
+    })
+});
+
 
 module.exports = router;
