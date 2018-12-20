@@ -163,7 +163,10 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                 const newcomment = new Comment({
                     creator: req.user,
                     content: req.body.content
+                    
                 });
+                newcomment.created_date = Date.now();
+                newcomment.modify_date = Date.now();
 
                 newcomment.save(function (err, comment) {
                     if (err) {

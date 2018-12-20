@@ -67,6 +67,8 @@ router.get('/:postId/comment', (req, res, next) => {
 
 router.post('/:postId/comment', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), (req, res, next) => {
     const comment = new Comment(req.body);
+    comment.created_date = Date.now();
+    comment.modify_date = Date.now();
     comment.creator = req.user;
     comment.save((err) => {
         if (err) {
