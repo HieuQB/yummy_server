@@ -38,7 +38,7 @@ router.post('/create_meeting', passport.authenticate('jwt', {
             newMeeting.time = post.time;
         }
     });
-
+    // console.log(newMeeting);
     Meeting.addJoinPeopleToDatabase(joined_people, (joined_people) => {
         newMeeting.joined_people = joined_people;
         var listRatingAverage = [];
@@ -60,7 +60,6 @@ router.post('/create_meeting', passport.authenticate('jwt', {
                     message: "can not create meeting"
                 }).status(301);
             newMeeting.list_point_average = arguments[1];
-            console.log(newMeeting.list_point_average);
             // Attempt to save the user
             newMeeting.save(function (err, meeting) {
                 if (err) {
@@ -249,8 +248,9 @@ router.get('/list/:page', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     var page = req.params.page;
+    console.log(req.user);
     Meeting.find(
-        { 'joined_people': { $in: [req.user] } }
+        { 'joined_people': { $in: [req.user._id] } }
     ).populate("joined_people").populate("comments")
         .limit(10).skip(page * 10)
         .exec((err, meeting) => {
