@@ -87,6 +87,7 @@ class RealServer {
             {
                 'is_finished': true, 'is_send_noti': false, $where: function () {
                     return (this.time.getTime() + (1 * 3600 * 1000) / 60) < Date.now(); // sau 24 tiếng thì gọi lệnh này 1 lần
+                    // return (this.time.getTime()  < Date.now()); // test
                 }
             }
         ).exec((err, meetings) => {
@@ -121,9 +122,11 @@ class RealServer {
                                     if (global.socket_list[noti.user_id.toString()] != null) {
                                         global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { rating: noti });
                                     } else {
-                                        newWaiting = new WaitingNoti();
-                                        newWaiting.userID = noti.user_id;
-                                        newWaiting.dataNoti = noti;
+
+                                        var newWaiting = new WaitingNoti({
+                                            userID: noti.user_id,
+                                            dataNoti: noti
+                                        });
 
                                         newWaiting.save(function (err, WaitingNoti) {
                                             if (err) {
