@@ -141,7 +141,7 @@ UserSchema.pre('save', function (next) {
     if (this.count_people_evaluate == 0) {
         this.point_default = (point_average_trust_point + 5) / 2;
     } else {
-        this.point_default = ((main_point / count_people_evaluate) + point_average_trust_point) / 2;
+        this.point_default = ((this.main_point / this.count_people_evaluate) + point_average_trust_point) / 2;
     }
     console.log(this.point_default);
     next();

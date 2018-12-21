@@ -15,6 +15,7 @@ var Notification = require('../models/NotificationModel');
 var WaitingNoti = require('../models/WaitingNotiModel');
 var RatingAverage = require('../models/RatingAverageModel');
 var geodist = require('geodist');
+var bcrypt = require('bcrypt');
 
 function getNextSequenceValue(sequenceName) {
     var sequenceDocument = db.counters.findAndModify(
@@ -65,6 +66,50 @@ router.post('/register', function (req, res) {
     }
 });
 
+router.post('/update_pass', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    bcrypt.compare(req.body.password, req.user.password, function (err, isMatch) {
+        if (err) {
+            return res.json({
+                success: false,
+                message: err,
+                status: 400
+            });
+        }
+        if (!isMatch) {
+            return res.json({
+                success: false,
+                message: "mat khau hien tai khong dung",
+                status: 400
+            });
+        } else if (req.body.newPassWord.length < 6) {
+            return res.json({
+                success: false,
+                message: "mat khau moi phai lon hon 6 ki tu",
+                status: 400
+            });
+        } else {
+            req.user.password = req.body.newPassWord;
+            req.user.save(function (err, user) {
+                if (err) {
+                    console.log(err);
+                    return res.json({
+                        success: false,
+                        message: err
+                    }).status(404);
+                }
+                res.json({
+                    success: true,
+                    message: "doi pass thanh cong",
+                    data: user,
+                    status: 200
+                });
+            });
+        }
+    });
+});
 router.get('/list_user_near', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
@@ -73,7 +118,7 @@ router.get('/list_user_near', passport.authenticate('jwt', {
     User.aggregate([
         {
             $geoNear: {
-                near: [req.user.latlngAddress.coordinates[0],req.user.latlngAddress.coordinates[1]],
+                near: [req.user.latlngAddress.coordinates[0], req.user.latlngAddress.coordinates[1]],
                 distanceField: 'latlngAddress'
             }
         }
