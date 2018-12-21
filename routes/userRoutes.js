@@ -121,6 +121,11 @@ router.get('/list_user_near', passport.authenticate('jwt', {
                 near: [req.user.latlngAddress.coordinates[0], req.user.latlngAddress.coordinates[1]],
                 distanceField: 'latlngAddress'
             }
+        },
+        {
+            $match: {
+                _id: { $nin: [req.user._id] }
+            }
         }
     ]).limit(10).sort({ trust_point: -1, main_point: -1 })
         .exec((err, list_user) => {
@@ -130,6 +135,13 @@ router.get('/list_user_near', passport.authenticate('jwt', {
                     message: err
                 }).status(301);
             }
+            list_user.forEach(item_user => {
+                if (global.socket_list[item_user._id.toString()]) {
+                    item_user.isOnline = true;
+                } else {
+                    item_user.isOnline = false;
+                }
+            });
             return res.json({
                 success: true,
                 message: "Get list thành công",
@@ -391,7 +403,8 @@ router.post('/search/:page', passport.authenticate('jwt', {
             {
                 $match: {
                     age: { "$gt": req.body.tuoiduoi, "$lt": req.body.tuoitren },
-                    gender: req.body.gender
+                    gender: req.body.gender,
+                    _id: { $nin: [req.user._id] }
                 }
             }
         ])

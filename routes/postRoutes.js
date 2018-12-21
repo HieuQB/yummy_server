@@ -15,7 +15,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
     delete req.body.categories;
     const newPost = new Post(req.body);
     newPost.creator = req.user;
-    newPost.latlngAddress = [newPost.location.coordinates[0],newPost.location.coordinates[1]];
+    newPost.latlngAddress = [newPost.location.coordinates[0], newPost.location.coordinates[1]];
     Post.addCategoryToDatabase(categories, (categories) => {
         newPost.categories = categories;
         newPost.save((err) => {
@@ -34,7 +34,10 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                         }
                     },
                     {
-                        $match: { 'myFavorite': { $in: [newPost.categories] } }
+                        $match: {
+                            'myFavorite': { $in: [newPost.categories] },
+                            _id: { $nin: [req.user._id] }
+                        }
                     }
                 ]).limit(10)
                     .exec((err, list_user) => {
@@ -46,7 +49,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                                 // Create Notification in Database
                                 var newNoti = new Notification({
                                     user_id: user,
-                                    title: newPost.creator.fullName.toString() + " vừa đăng một bài viết ở gần bạn: " + newPost.content,
+                                    title: newPost.creator.fullName.toString() + " đã đăng một bài viết ở gần bạn: " + req.body.content,
                                     image: newPost.creator.avatar,
                                     content: { type: 1, data: newPost } // 1 = type Post
                                 });
@@ -86,14 +89,6 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                     data: newPost,
                     message: 'Success upload new post'
                 })
-
-                // User.find().exec((err, user) => {
-                //     res.json({
-                //         success: true,
-                //         data: user,
-                //         message: 'Success upload new post'
-                //     })
-                // })
             }
         })
     });
@@ -103,7 +98,7 @@ router.get('/nearme', passport.authenticate('jwt', { session: false, failureRedi
     Post.aggregate([
         {
             $geoNear: {
-                near: [req.user.latlngAddress.coordinates[0],req.user.latlngAddress.coordinates[1]],
+                near: [req.user.latlngAddress.coordinates[0], req.user.latlngAddress.coordinates[1]],
                 distanceField: 'location'
             }
         },
@@ -120,7 +115,7 @@ router.get('/nearme', passport.authenticate('jwt', { session: false, failureRedi
                     message: `Error is : ${err}`
                 });
             } else {
-                Post.populate(posts, [{ path: 'creator' }, { path: 'category' }, { path: 'reaction' },{ path: 'categories' }], function (err, results) {
+                Post.populate(posts, [{ path: 'creator' }, { path: 'category' }, { path: 'reaction' }, { path: 'categories' }], function (err, results) {
                     if (err) {
                         res.json({
                             success: false,
@@ -361,7 +356,7 @@ router.put('/:postId', passport.authenticate('jwt', {
             req.post[p] = req.body[p];
         }
         req.post.modify_date = Date.now();
-        req.post.latlngAddress = [req.post.location.coordinates[0],req.post.location.coordinates[1]]
+        req.post.latlngAddress = [req.post.location.coordinates[0], req.post.location.coordinates[1]]
         req.post.save((err) => {
             if (err)
                 res.json({
