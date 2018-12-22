@@ -18,16 +18,6 @@ var geodist = require('geodist');
 var bcrypt = require('bcrypt');
 var GeoPoint = require('geopoint');
 
-function getNextSequenceValue(sequenceName) {
-    var sequenceDocument = db.counters.findAndModify(
-        {
-            query: { _id: sequenceName },
-            update: { $inc: { sequence_value: 1 } },
-            new: true
-        });
-    return sequenceDocument.sequence_value;
-}
-
 router.post('/register', function (req, res) {
     if (!req.body.email || !req.body.password) {
         res.json({ success: false, message: 'Please enter email and password.' });
@@ -506,31 +496,6 @@ router.post('/invite', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    var invite = new Invite();
-    invite.creator = req.user;
-
-    invite.save(function (err, invite_data) {
-        if(err) {
-            res.json({
-                success: false,
-                data: {},
-                message: `error is : ${err}`
-            });
-        } else {
-            res.json({
-                success: true,
-                message: "Tao thanh cong loi moi",
-                data: invite_data
-            });
-        }
-    })
-});
-
-// API gửi noti cho user tìm kiếm được 
-router.post('/sendRequest', passport.authenticate('jwt', {
-    session: false,
-    failureRedirect: '/unauthorized'
-}), function (req, res, next) {
     var newInvite = new Invite();
     newInvite.creator = req.user;
     newInvite.userSearch = req.body.userSearch;
@@ -539,93 +504,92 @@ router.post('/sendRequest', passport.authenticate('jwt', {
     newInvite.place = req.body.place;
     newInvite.time = req.body.time;
 
-    newInvite.save(function (err, new_request) {
+    newInvite.save(function (err, invite_data) {
         if (err) {
-            return res.json({
+            res.json({
                 success: false,
                 data: {},
                 message: `error is : ${err}`
             });
-        }
-        console.log(new_request);
-        return res.json({
-            success: true,
-            message: "Tạo wating thành công do user này offline",
-            data: new_request
-        }).status(200);
-        // Create Notification in Database
-        // var newNoti = new Notification({
-        //     user_id: request.userSearch,
-        //     image: request.creator.avatar,
-        //     title: request.content,
-        //     content: { type: 3, data: request } // 3 là type search 
-        // });
-        // // Attempt to save the user
-        // newNoti.save(function (err, noti) {
-        //     if (err) {
-        //         return res.json({
-        //             success: false,
-        //             message: err
-        //         }).status(301);
-        //     }
-        //     if (global.socket_list[noti.user_id.toString()] != null) {
-        //         global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { invite: noti });
-        //         return res.json({
-        //             success: true,
-        //             message: "gửi noti trực tiếp thành công",
-        //             data: noti
-        //         }).status(200);
-        //     } else {
-        //         console.log("socket null");
-        //         newWaiting = new WaitingNoti({
-        //             userID: noti.user_id,
-        //             dataNoti: noti
-        //         });
+        } else {
+            // Create Notification in Database
+            var newNoti = new Notification({
+                user_id: invite_data.userSearch,
+                image: invite_data.creator.avatar,
+                title: invite_data.content,
+                content: { type: 3, data: invite_data } // 3 là type search 
+            });
+            // Attempt to save the user
+            newNoti.save(function (err, noti) {
+                if (err) {
+                    return res.json({
+                        success: false,
+                        message: err
+                    }).status(301);
+                }
+                if (global.socket_list[noti.user_id.toString()] != null) {
+                    global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { invite: noti });
+                    return res.json({
+                        success: true,
+                        message: "gửi noti trực tiếp thành công",
+                        data: noti
+                    }).status(200);
+                } else {
+                    console.log("socket null");
+                    newWaiting = new WaitingNoti({
+                        userID: noti.user_id,
+                        dataNoti: noti
+                    });
 
-        //         newWaiting.save(function (err, WaitingNoti) {
-        //             if (err) {
-        //                 console.log(err);
-        //             } else {
-        //                 console.log("THÊM waiting Noti: " + WaitingNoti);
-        //                 return res.json({
-        //                     success: true,
-        //                     message: "Tạo wating thành công do user này offline",
-        //                     data: WaitingNoti
-        //                 }).status(200);
-        //             }
-        //         });
-        //     }
-        // });
-    });
+                    newWaiting.save(function (err, WaitingNoti) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log("THÊM waiting Noti: " + WaitingNoti);
+                            return res.json({
+                                success: true,
+                                message: "Tạo wating thành công do user này offline",
+                                data: WaitingNoti
+                            }).status(200);
+                        }
+                    });
+                }
+            });
+        }
+    })
 });
 
-// API accept request 
-router.post('/acceptRequest', passport.authenticate('jwt', {
+// API gửi noti cho user tìm kiếm được 
+router.post('/acceptInvite', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Invite.findById(req.body.request).populate('creator').populate('userSearch').exec((err, request) => {
+    const newMeeting = new Meeting();
+    var joined_people = [];
+    Invite.findById(req.body.request).populate('creator').populate('userSearch').exec((err, invite) => {
         if (err) {
-            return res.json({
+            res.json({
                 success: false,
                 message: err
             }).status(301);
-        }
-        if (!request) {
-            return res.json({
+        } else if (!invite) {
+            res.json({
                 success: false,
-                message: "request not found"
-            }).status(301);
+                message: "Invite not found"
+            }).status(404);
         } else {
-            if (request.userSearch._id == req.user._id) {
-                newMeeting = new Meeting();
-                var joined_people = [request.creator._id, request.userSearch._id];
-                newMeeting.creator = request.creator;
-                newMeeting.location = request.location;
-                newMeeting.place = request.place;
-                newMeeting.time = request.time;
-
+            console.log('1')
+            joined_people = [invite.creator._id, invite.userSearch._id];
+            console.log(joined_people);
+            newMeeting.creator = invite.creator;
+            newMeeting.location = invite.location;
+            newMeeting.place = invite.place;
+            newMeeting.time = invite.time;
+            console.log('1111')
+            console.log(joined_people)
+            if (invite.userSearch._id == req.user._id) {
                 Meeting.addJoinPeopleToDatabase(joined_people, (joined_people) => {
+                    console.log('2')
                     newMeeting.joined_people = joined_people;
                     var listRatingAverage = [];
                     joined_people.forEach(function (people) {
@@ -633,6 +597,8 @@ router.post('/acceptRequest', passport.authenticate('jwt', {
                         newRatingAverage.user = people;
                         listRatingAverage.push(newRatingAverage);
                     });
+                    // console.log(listRatingAverage);
+                    console.log("aaaa");
                     RatingAverage.create(listRatingAverage, function (err) {
                         if (err) {
                             return res.json({
@@ -640,13 +606,14 @@ router.post('/acceptRequest', passport.authenticate('jwt', {
                                 message: err
                             }).status(301);
                         }
+                        // console.log(arguments);
+                        console.log("asda");
                         if (!arguments[1])
                             return res.json({
                                 success: false,
                                 message: "can not create meeting"
                             }).status(301);
                         newMeeting.list_point_average = arguments[1];
-                        console.log(newMeeting.list_point_average);
                         // Attempt to save the user
                         newMeeting.save(function (err, meeting) {
                             if (err) {
@@ -658,20 +625,24 @@ router.post('/acceptRequest', passport.authenticate('jwt', {
                                 // Create Notification in Database
                                 var newNoti = new Notification({
                                     user_id: meeting.creator._id,
-                                    image: request.userSearch.avatar,
-                                    title: request.userSearch.fullName.toString() + " vừa đồng ý lời mời đi ăn của bạn. Ấn Đồng ý để xem chi tiết cuộc hẹn",
+                                    image: invite.userSearch.avatar,
+                                    title: invite.userSearch.fullName.toString() + " vừa đồng ý lời mời đi ăn của bạn. Ấn Đồng ý để xem chi tiết cuộc hẹn",
                                     content: { type: 2, data: meeting }
                                 });
                                 // Attempt to save the user
                                 newNoti.save(function (err, noti) {
                                     if (err) {
-                                        return res.json({
+                                        res.json({
                                             success: false,
                                             message: err
                                         }).status(301);
-                                    }
-                                    if (global.socket_list[noti.user_id.toString()] != null) {
+                                    } else if (global.socket_list[noti.user_id.toString()] != null) {
                                         global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { accept: noti });
+                                        res.json({
+                                            success: true,
+                                            message: "create meeting thành công",
+                                            data: meeting
+                                        }).status(200);
                                     } else {
                                         console.log("socket null");
                                         newWaiting = new WaitingNoti({
@@ -682,31 +653,37 @@ router.post('/acceptRequest', passport.authenticate('jwt', {
                                         newWaiting.save(function (err, WaitingNoti) {
                                             if (err) {
                                                 console.log(err);
+                                                res.json({
+                                                    success: false,
+                                                    message: err
+                                                }).status(301);
                                             } else {
                                                 console.log("THÊM waiting Noti: " + WaitingNoti);
+                                                res.json({
+                                                    success: true,
+                                                    message: "create meeting thành công",
+                                                    data: meeting
+                                                }).status(200);
                                             }
                                         });
                                     }
                                 });
-                                return res.json({
-                                    success: true,
-                                    message: "create meeting thành công",
-                                    data: meeting
-                                }).status(200);
                             }
                         });
                     });
-
-                });
+                })
             } else {
-                return res.json({
+                res.json({
                     success: false,
                     message: "bạn không có quyền chấp nhận request này",
                     data: {}
                 }).status(404);
+
             }
         }
     });
+
+
 });
 
 router.post('/rejectRequest', passport.authenticate('jwt', {
@@ -759,6 +736,10 @@ router.post('/rejectRequest', passport.authenticate('jwt', {
                         newWaiting.save(function (err, WaitingNoti) {
                             if (err) {
                                 console.log(err);
+                                return res.json({
+                                    success: false,
+                                    message: err
+                                }).status(301);
                             } else {
                                 return res.json({
                                     success: true,
