@@ -10,7 +10,7 @@ var Post = require('../models/PostModel');
 var router = express.Router();
 var Rate = require('../models/RateModel');
 var Meeting = require('../models/MeetingModel');
-var Request = require('../models/RequestModel');
+var Request_Data = require('../models/RequestModel');
 var Notification = require('../models/NotificationModel');
 var WaitingNoti = require('../models/WaitingNotiModel');
 var RatingAverage = require('../models/RatingAverageModel');
@@ -507,7 +507,7 @@ router.post('/sendRequest', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    var newRequest = new Request();
+    var newRequest = new Request_Data();
     newRequest.creator = req.user;
     newRequest.userSearch = req.body.userSearch;
     newRequest.content = req.body.content;
@@ -515,7 +515,7 @@ router.post('/sendRequest', passport.authenticate('jwt', {
     newRequest.place = req.body.place;
     newRequest.time = req.body.time;
 
-    newRequest.save((err, request) => {
+    newRequest.save((err, request_data) => {
         if (err) {
             res.json({
                 success: false,
@@ -523,11 +523,11 @@ router.post('/sendRequest', passport.authenticate('jwt', {
                 message: `error is : ${err}`
             });
         } else {
-            console.log(request);
+            console.log(request_data);
             return res.json({
                 success: true,
                 message: "Tạo wating thành công do user này offline",
-                data: request
+                data: request_data
             }).status(200);
             // Create Notification in Database
             // var newNoti = new Notification({
@@ -581,7 +581,7 @@ router.post('/acceptRequest', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Request.findById(req.body.request).populate('creator').populate('userSearch').exec((err, request) => {
+    Request_Data.findById(req.body.request).populate('creator').populate('userSearch').exec((err, request) => {
         if (err) {
             return res.json({
                 success: false,
@@ -690,7 +690,7 @@ router.post('/rejectRequest', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Request.findById(req.body.request).populate('creator').populate('userSearch').exec((err, request) => {
+    Request_Data.findById(req.body.request).populate('creator').populate('userSearch').exec((err, request) => {
         if (err) {
             return res.json({
                 success: false,
