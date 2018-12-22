@@ -502,6 +502,30 @@ router.post('/search/:page', passport.authenticate('jwt', {
     }
 });
 
+router.post('/invite', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    var invite = new Invite();
+    invite.creator = req.user;
+
+    invite.save(function (err, invite_data) {
+        if(err) {
+            res.json({
+                success: false,
+                data: {},
+                message: `error is : ${err}`
+            });
+        } else {
+            res.json({
+                success: true,
+                message: "Tao thanh cong loi moi",
+                data: invite_data
+            });
+        }
+    })
+});
+
 // API gửi noti cho user tìm kiếm được 
 router.post('/sendRequest', passport.authenticate('jwt', {
     session: false,
