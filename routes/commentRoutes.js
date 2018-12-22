@@ -5,6 +5,7 @@ var User = require('../models/UserModel');
 var Comment = require('../models/CommentModel');
 var passport = require('passport');
 var Notification = require('../models/NotificationModel');
+var WaitingNoti = require('../models/WaitingNotiModel');
 
 // router.use('/:postId/comment', (req, res, next) => {
 //     Post.findOne({ filter: { where: { id: req.params.postId } } })
@@ -90,13 +91,33 @@ router.post('/:postId/comment', passport.authenticate('jwt', { session: false, f
                 }
                 else {
                     if (comment.creator != req.post.creator) {
+                        // // Create Notification in Database
+                        // var newNoti = new Notification({
+                        //     user_id: req.post.creator._id,
+                        //     type: 1, // 1 = type Post
+                        //     content: comment.creator.fullName.toString() + " vừa bình luận bài viết của bạn",
+                        //     image: comment.creator.avatar,
+                        //     data: comment
+                        // });
+
+                        // // Attempt to save the user
+                        // newNoti.save(function (err, noti) {
+                        //     if (err) {
+                        //         return res.json({
+                        //             success: false,
+                        //             message: err
+                        //         }).status(301);
+                        //     }
+                        //     if (global.socket != null) {
+                        //         global.socket.emit("notify-user-" + noti.user_id.toString(), { data_noti: noti });
+                        //     }
+                        // });
                         // Create Notification in Database
                         var newNoti = new Notification({
                             user_id: req.post.creator._id,
-                            type: 1, // 1 = type Post
-                            content: comment.creator.fullName.toString() + " vừa bình luận bài viết của bạn",
+                            title: comment.creator.fullName.toString()  + " vừa bình luận bài viết của bạn: " + comment.content,
                             image: comment.creator.avatar,
-                            data: comment
+                            content: { type: 1, data:  req.post} // 1 = type Post
                         });
 
                         // Attempt to save the user
@@ -107,8 +128,23 @@ router.post('/:postId/comment', passport.authenticate('jwt', { session: false, f
                                     message: err
                                 }).status(301);
                             }
-                            if (global.socket != null) {
-                                global.socket.emit("notify-user-" + noti.user_id.toString(), { data_noti: noti });
+                            if (global.socket_list[noti.user_id.toString()] != null) {
+                                // console.log("goi emit notify-user-" + noti.user_id.toString());
+                                global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+                            } else {
+                                console.log("socket null");
+                                newWaiting = new WaitingNoti({
+                                    userID: noti.user_id,
+                                    dataNoti: noti
+                                });
+
+                                newWaiting.save(function (err, WaitingNoti) {
+                                    if (err) {
+                                        console.log(err);
+                                    } else {
+                                        console.log("THÊM waiting Noti: " + WaitingNoti);
+                                    }
+                                });
                             }
                         });
                     }

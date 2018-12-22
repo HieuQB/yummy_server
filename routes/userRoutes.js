@@ -16,6 +16,7 @@ var WaitingNoti = require('../models/WaitingNotiModel');
 var RatingAverage = require('../models/RatingAverageModel');
 var geodist = require('geodist');
 var bcrypt = require('bcrypt');
+var GeoPoint = require('geopoint');
 
 function getNextSequenceValue(sequenceName) {
     var sequenceDocument = db.counters.findAndModify(
@@ -45,7 +46,8 @@ router.post('/register', function (req, res) {
             myStyle: req.body.myStyle,
             targetCharacter: req.body.targetCharacter,
             targetStyle: req.body.targetStyle,
-            targetFood: req.body.targetFood
+            targetFood: req.body.targetFood,
+            location : [req.body.latlngAddress.coordinates[0], req.body.latlngAddress.coordinates[1]]
         });
 
         // Attempt to save the user
@@ -136,6 +138,13 @@ router.get('/list_user_near', passport.authenticate('jwt', {
                 }).status(301);
             }
             list_user.forEach(item_user => {
+                console.log(req.user.latlngAddress.coordinates);
+                console.log(item_user.location);
+                point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
+                point2 = new GeoPoint(item_user.location[1], item_user.location[0]);
+                var distance = point1.distanceTo(point2, true); //kilometer
+                console.log(distance);
+                item_user.distance = distance;
                 if (global.socket_list[item_user._id.toString()]) {
                     item_user.isOnline = true;
                 } else {
@@ -286,6 +295,7 @@ router.post('/editUser', passport.authenticate('jwt', {
             for (var p in req.body) {
                 user[p] = req.body[p];
             }
+            user.location = [user.latlngAddress.coordinates[0], user.latlngAddress.coordinates[1]];
             user.save();
             res.send({ success: true, data: user, status: 200 });
         });
@@ -419,6 +429,15 @@ router.post('/search/:page', passport.authenticate('jwt', {
                     });
                 } else {
                     listUserSearch.forEach(item_user => {
+
+                        console.log(req.user.latlngAddress.coordinates);
+                        console.log(item_user.location);
+                        point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
+                        point2 = new GeoPoint(item_user.location[1], item_user.location[0]);
+                        var distance = point1.distanceTo(point2, true); //kilometer
+                        console.log(distance);
+                        item_user.distance = distance;
+
                         if (global.socket_list[item_user._id.toString()]) {
                             item_user.isOnline = true;
                         } else {
@@ -442,7 +461,8 @@ router.post('/search/:page', passport.authenticate('jwt', {
             },
             {
                 $match: {
-                    age: { "$gt": req.body.tuoiduoi, "$lt": req.body.tuoitren }
+                    age: { "$gt": req.body.tuoiduoi, "$lt": req.body.tuoitren },
+                    _id: { $nin: [req.user._id] }
                 }
             }
         ])
@@ -457,6 +477,15 @@ router.post('/search/:page', passport.authenticate('jwt', {
                     });
                 } else {
                     listUserSearch.forEach(item_user => {
+
+                        console.log(req.user.latlngAddress.coordinates);
+                        console.log(item_user.latlngAddress.coordinates);
+                        point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
+                        point2 = new GeoPoint(item_user.latlngAddress.coordinates[1], item_user.latlngAddress.coordinates[0]);
+                        var distance = point1.distanceTo(point2, true); //kilometer
+                        console.log(distance);
+                        item_user.distance = distance;
+
                         if (global.socket_list[item_user._id.toString()]) {
                             item_user.isOnline = true;
                         } else {
