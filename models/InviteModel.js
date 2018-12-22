@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 var User = require('./UserModel');
 var autoIncrement = require('mongoose-auto-increment-fix');
 
-var RequestSchema = new Schema({
+var InviteSchema = new Schema({
     creator: {type: Number,  ref: 'User'},
     userSearch : {type: Number,  ref: 'User'},
     content: {type: String},
@@ -15,6 +15,6 @@ var RequestSchema = new Schema({
     usePushEach: true,
     versionKey: false
 });
-RequestSchema.plugin(autoIncrement.plugin,'Request');
+InviteSchema.plugin(autoIncrement.plugin,'Invite');
 
-module.exports = mongoose.model('Request', RequestSchema);
+module.exports = mongoose.model('Invite', InviteSchema);
