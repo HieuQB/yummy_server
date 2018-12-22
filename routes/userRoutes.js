@@ -515,64 +515,63 @@ router.post('/sendRequest', passport.authenticate('jwt', {
     newInvite.place = req.body.place;
     newInvite.time = req.body.time;
 
-    newInvite.save((err, request) => {
+    newInvite.save(function (err, new_request) {
         if (err) {
-            res.json({
+            return res.json({
                 success: false,
                 data: {},
                 message: `error is : ${err}`
             });
-        } else {
-            console.log(request);
-            return res.json({
-                success: true,
-                message: "Tạo wating thành công do user này offline",
-                data: request
-            }).status(200);
-            // Create Notification in Database
-            // var newNoti = new Notification({
-            //     user_id: request.userSearch,
-            //     image: request.creator.avatar,
-            //     title: request.content,
-            //     content: { type: 3, data: request } // 3 là type search 
-            // });
-            // // Attempt to save the user
-            // newNoti.save(function (err, noti) {
-            //     if (err) {
-            //         return res.json({
-            //             success: false,
-            //             message: err
-            //         }).status(301);
-            //     }
-            //     if (global.socket_list[noti.user_id.toString()] != null) {
-            //         global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { invite: noti });
-            //         return res.json({
-            //             success: true,
-            //             message: "gửi noti trực tiếp thành công",
-            //             data: noti
-            //         }).status(200);
-            //     } else {
-            //         console.log("socket null");
-            //         newWaiting = new WaitingNoti({
-            //             userID: noti.user_id,
-            //             dataNoti: noti
-            //         });
-
-            //         newWaiting.save(function (err, WaitingNoti) {
-            //             if (err) {
-            //                 console.log(err);
-            //             } else {
-            //                 console.log("THÊM waiting Noti: " + WaitingNoti);
-            //                 return res.json({
-            //                     success: true,
-            //                     message: "Tạo wating thành công do user này offline",
-            //                     data: WaitingNoti
-            //                 }).status(200);
-            //             }
-            //         });
-            //     }
-            // });
         }
+        console.log(new_request);
+        return res.json({
+            success: true,
+            message: "Tạo wating thành công do user này offline",
+            data: new_request
+        }).status(200);
+        // Create Notification in Database
+        // var newNoti = new Notification({
+        //     user_id: request.userSearch,
+        //     image: request.creator.avatar,
+        //     title: request.content,
+        //     content: { type: 3, data: request } // 3 là type search 
+        // });
+        // // Attempt to save the user
+        // newNoti.save(function (err, noti) {
+        //     if (err) {
+        //         return res.json({
+        //             success: false,
+        //             message: err
+        //         }).status(301);
+        //     }
+        //     if (global.socket_list[noti.user_id.toString()] != null) {
+        //         global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { invite: noti });
+        //         return res.json({
+        //             success: true,
+        //             message: "gửi noti trực tiếp thành công",
+        //             data: noti
+        //         }).status(200);
+        //     } else {
+        //         console.log("socket null");
+        //         newWaiting = new WaitingNoti({
+        //             userID: noti.user_id,
+        //             dataNoti: noti
+        //         });
+
+        //         newWaiting.save(function (err, WaitingNoti) {
+        //             if (err) {
+        //                 console.log(err);
+        //             } else {
+        //                 console.log("THÊM waiting Noti: " + WaitingNoti);
+        //                 return res.json({
+        //                     success: true,
+        //                     message: "Tạo wating thành công do user này offline",
+        //                     data: WaitingNoti
+        //                 }).status(200);
+        //             }
+        //         });
+        //     }
+        // });
     });
 });
 
