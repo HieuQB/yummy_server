@@ -589,7 +589,6 @@ router.post('/acceptRequest', passport.authenticate('jwt', {
                 message: "request not found"
             }).status(301);
         } else {
-            console.log(request);
             if (request.userSearch._id == req.user._id) {
                 newMeeting = new Meeting();
                 var joined_people = [request.creator._id, request.userSearch._id];

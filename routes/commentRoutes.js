@@ -90,7 +90,7 @@ router.post('/:postId/comment', passport.authenticate('jwt', { session: false, f
                     });
                 }
                 else {
-                    if (comment.creator != req.post.creator._id) {
+                    if (comment.creator._id != req.post.creator._id) {
                         // // Create Notification in Database
                         // var newNoti = new Notification({
                         //     user_id: req.post.creator._id,
