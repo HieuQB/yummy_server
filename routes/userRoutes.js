@@ -503,7 +503,7 @@ router.post('/search/:page', passport.authenticate('jwt', {
 });
 
 // API gửi noti cho user tìm kiếm được 
-router.post('/sendRequest', passport.authenticate('jwt', {
+router.post('/send_request', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
