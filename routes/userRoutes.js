@@ -481,7 +481,7 @@ router.post('/search/:page', passport.authenticate('jwt', {
                         console.log(req.user.latlngAddress.coordinates);
                         console.log(item_user.latlngAddress.coordinates);
                         point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
-                        point2 = new GeoPoint(item_user.latlngAddress.coordinates[1], item_user.latlngAddress.coordinates[0]);
+                        point2 = new GeoPoint(item_user.location[1], item_user.location[0]);
                         var distance = point1.distanceTo(point2, true); //kilometer
                         console.log(distance);
                         item_user.distance = distance;
@@ -507,7 +507,7 @@ router.post('/sendRequest', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    newRequest = new Request();
+    var newRequest = new Request();
     newRequest.creator = req.user;
     newRequest.userSearch = req.body.userSearch;
     newRequest.content = req.body.content;
