@@ -10,6 +10,40 @@ var WaitingNoti = require('../models/WaitingNotiModel');
 var LeavePerson = require('../models/LeavePersonModel');
 var RatingAverage = require('../models/RatingAverageModel');
 
+router.post('/check_rating/:meetingId', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Meeting.findById(req.params.meetingId).exec((err, meeting) => {
+        if (err) {
+            return res.json({
+                success: false,
+                message: err
+            }).status(301);
+        } else if (!meeting) {
+            return res.json({
+                success: false,
+                message: "meeting not found"
+            }).status(404);
+        } else {
+            console.log(meeting.joined_people);
+            console.log(req.user._id);
+            if (meeting.joined_people.indexOf(req.user._id) > -1) {
+                //In the array!
+                return res.json({
+                    success: true,
+                    message: "In meeting",
+                }).status(200);
+            } else {
+                //Not in the array
+                return res.json({
+                    success: true,
+                    message: "Not in meeting"
+                }).status(200);
+            }
+        }
+    });
+});
 //  Tạo cuộc hẹn mới
 router.post('/create_meeting', passport.authenticate('jwt', {
     session: false,
@@ -163,7 +197,7 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                 const newcomment = new Comment({
                     creator: req.user,
                     content: req.body.content
-                    
+
                 });
                 newcomment.created_date = Date.now();
                 newcomment.modify_date = Date.now();
@@ -368,14 +402,14 @@ router.get('/:meetingId', passport.authenticate('jwt', {
         path: 'comments',
         model: 'Comment',
     })
-    .populate({
-        path: 'list_point_average',
-        model: 'RatingAverage',
-        populate: {
-            path: 'user',
-            model: 'User'
-        }
-    })
+        .populate({
+            path: 'list_point_average',
+            model: 'RatingAverage',
+            populate: {
+                path: 'user',
+                model: 'User'
+            }
+        })
         .exec((err, meeting) => {
             if (err)
                 res.json({

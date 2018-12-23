@@ -346,64 +346,6 @@ router.post('/nearme/filter', function (req, res, next) {
     }
 });
 
-router.put('/:postId', passport.authenticate('jwt', {
-    session: false,
-    failureRedirect: '/unauthorized'
-}), function (req, res, next) {
-    //user is not creator?
-    if (req.user.id === req.post.creator.id) {
-        for (var p in req.body) {
-            req.post[p] = req.body[p];
-        }
-        req.post.modify_date = Date.now();
-        req.post.latlngAddress = [req.post.location.coordinates[0], req.post.location.coordinates[1]]
-        req.post.save((err) => {
-            if (err)
-                res.json({
-                    success: false,
-                    message: `Error: ${err}`
-                });
-            else
-                res.json({
-                    success: true,
-                    message: "update post success",
-                    data: req.post
-                });
-        });
-    } else {
-        res.json({
-            success: false,
-            message: "You don't have permission"
-        })
-    }
-});
-
-
-
-router.delete('/:postId', passport.authenticate('jwt', {
-    session: false,
-    failureRedirect: '/unauthorized'
-}), function (req, res) {
-    if (req.user.id === req.post.creator.id) {
-        req.post.remove((err) => {
-            if (err)
-                res.json({
-                    success: false,
-                    message: `Error: ${err}`
-                });
-            else
-                res.json({
-                    success: true,
-                    message: "delete post success"
-                });
-        });
-    } else {
-        res.json({
-            success: false,
-            message: "You don't have permission"
-        })
-    }
-});
 
 // Danh sách người quan tâm bài post
 router.get('/:postId/interested_list', passport.authenticate('jwt', {
@@ -464,6 +406,64 @@ router.use('/:postId', passport.authenticate('jwt', { session: false, failureRed
             }
         });
 });
+
+router.put('/:postId', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    //user is not creator?
+    if (req.user.id === req.post.creator.id) {
+        for (var p in req.body) {
+            req.post[p] = req.body[p];
+        }
+        req.post.modify_date = Date.now();
+        req.post.latlngAddress = [req.post.location.coordinates[0], req.post.location.coordinates[1]]
+        req.post.save((err) => {
+            if (err)
+                res.json({
+                    success: false,
+                    message: `Error: ${err}`
+                });
+            else
+                res.json({
+                    success: true,
+                    message: "update post success",
+                    data: req.post
+                });
+        });
+    } else {
+        res.json({
+            success: false,
+            message: "You don't have permission"
+        })
+    }
+});
+
+router.delete('/:postId', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res) {
+    if (req.user.id === req.post.creator.id) {
+        req.post.remove((err) => {
+            if (err)
+                res.json({
+                    success: false,
+                    message: `Error: ${err}`
+                });
+            else
+                res.json({
+                    success: true,
+                    message: "delete post success"
+                });
+        });
+    } else {
+        res.json({
+            success: false,
+            message: "You don't have permission"
+        })
+    }
+});
+
 
 router.get('/:postId', function (req, res, next) {
     res.json({

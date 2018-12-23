@@ -39,7 +39,7 @@ var WaitingNoti = require('../models/WaitingNotiModel');
 // });
 
 router.use('/:postId/comment/:commentId', (req, res, next) => {
-    Comment.findById(req.params.postId).populate('creator').exec((err, comment) => {
+    Comment.findById(req.params.commentId).populate('creator').exec((err, comment) => {
         if (err)
             res.json({
                 success: false,
@@ -201,7 +201,7 @@ router.put('/:postId/comment/:commentId', passport.authenticate('jwt', { session
 });
 
 router.delete('/:postId/comment/:commentId', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), (req, res, next) => {
-    if (req.user.id === req.comment.creator.id) {
+    if (req.user._id === req.comment.creator._id) {
         req.comment.remove((err) => {
             if (err)
                 res.json({

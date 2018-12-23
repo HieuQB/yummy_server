@@ -86,7 +86,6 @@ router.post('/update_pass', passport.authenticate('jwt', {
             req.user.password = req.body.newPassWord;
             req.user.save(function (err, user) {
                 if (err) {
-                    console.log(err);
                     return res.json({
                         success: false,
                         message: err
@@ -106,7 +105,6 @@ router.get('/list_user_near', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    console.log(req.user);
     User.aggregate([
         {
             $geoNear: {
@@ -128,12 +126,9 @@ router.get('/list_user_near', passport.authenticate('jwt', {
                 }).status(301);
             }
             list_user.forEach(item_user => {
-                console.log(req.user.latlngAddress.coordinates);
-                console.log(item_user.location);
                 point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
                 point2 = new GeoPoint(item_user.location[1], item_user.location[0]);
                 var distance = point1.distanceTo(point2, true); //kilometer
-                console.log(distance);
                 item_user.distance = distance;
                 if (global.socket_list[item_user._id.toString()]) {
                     item_user.isOnline = true;
@@ -420,12 +415,9 @@ router.post('/search/:page', passport.authenticate('jwt', {
                 } else {
                     listUserSearch.forEach(item_user => {
 
-                        console.log(req.user.latlngAddress.coordinates);
-                        console.log(item_user.location);
                         point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
                         point2 = new GeoPoint(item_user.location[1], item_user.location[0]);
                         var distance = point1.distanceTo(point2, true); //kilometer
-                        console.log(distance);
                         item_user.distance = distance;
 
                         if (global.socket_list[item_user._id.toString()]) {
@@ -468,12 +460,9 @@ router.post('/search/:page', passport.authenticate('jwt', {
                 } else {
                     listUserSearch.forEach(item_user => {
 
-                        console.log(req.user.latlngAddress.coordinates);
-                        console.log(item_user.latlngAddress.coordinates);
                         point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
                         point2 = new GeoPoint(item_user.location[1], item_user.location[0]);
                         var distance = point1.distanceTo(point2, true); //kilometer
-                        console.log(distance);
                         item_user.distance = distance;
 
                         if (global.socket_list[item_user._id.toString()]) {
@@ -545,7 +534,6 @@ router.post('/invite', passport.authenticate('jwt', {
                         if (err) {
                             console.log(err);
                         } else {
-                            console.log("THÊM waiting Noti: " + WaitingNoti);
                             return res.json({
                                 success: true,
                                 message: "Tạo wating thành công do user này offline",
@@ -578,18 +566,13 @@ router.post('/acceptInvite', passport.authenticate('jwt', {
                 message: "Invite not found"
             }).status(404);
         } else {
-            console.log('1')
             joined_people = [invite.creator._id, invite.userSearch._id];
-            console.log(joined_people);
             newMeeting.creator = invite.creator;
             newMeeting.location = invite.location;
             newMeeting.place = invite.place;
             newMeeting.time = invite.time;
-            console.log('1111')
-            console.log(joined_people)
             if (invite.userSearch._id == req.user._id) {
                 Meeting.addJoinPeopleToDatabase(joined_people, (joined_people) => {
-                    console.log('2')
                     newMeeting.joined_people = joined_people;
                     var listRatingAverage = [];
                     joined_people.forEach(function (people) {
@@ -598,7 +581,6 @@ router.post('/acceptInvite', passport.authenticate('jwt', {
                         listRatingAverage.push(newRatingAverage);
                     });
                     // console.log(listRatingAverage);
-                    console.log("aaaa");
                     RatingAverage.create(listRatingAverage, function (err) {
                         if (err) {
                             return res.json({
@@ -607,7 +589,6 @@ router.post('/acceptInvite', passport.authenticate('jwt', {
                             }).status(301);
                         }
                         // console.log(arguments);
-                        console.log("asda");
                         if (!arguments[1])
                             return res.json({
                                 success: false,
@@ -735,7 +716,6 @@ router.post('/rejectRequest', passport.authenticate('jwt', {
 
                         newWaiting.save(function (err, WaitingNoti) {
                             if (err) {
-                                console.log(err);
                                 return res.json({
                                     success: false,
                                     message: err
