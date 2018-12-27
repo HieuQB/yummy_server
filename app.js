@@ -69,6 +69,7 @@ app.use('/api/rate', rateRoutes);
 app.use('/api/voucher', voucherRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/image', imageRoutes);
+app.use('/image', express.static('uploads'));
 
 //catch unauthorized
 app.get('/unauthorized', function (req, res) {
