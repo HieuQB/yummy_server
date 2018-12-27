@@ -445,6 +445,8 @@ router.put('/:postId', passport.authenticate('jwt', {
         for (var p in req.body) {
             req.post[p] = req.body[p];
         }
+        req.post.modify_date = Date.now();
+        req.post.latlngAddress = [req.post.location.coordinates[0], req.post.location.coordinates[1]];
         if (req.file) {
             fs.unlink('/opt/yummy/' + req.post.image, (error) => {
                 if (error) {
@@ -454,8 +456,7 @@ router.put('/:postId', passport.authenticate('jwt', {
             });
             req.post.image = req.file.path;
         }
-        req.post.modify_date = Date.now();
-        req.post.latlngAddress = [req.post.location.coordinates[0], req.post.location.coordinates[1]]
+
         req.post.save((err) => {
             if (err)
                 res.json({

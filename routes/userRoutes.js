@@ -50,7 +50,7 @@ router.post('/register',upload.single('avatar'), function (req, res) {
     if (!req.body.email || !req.body.password) {
         res.json({ success: false, message: 'Please enter email and password.' });
     } else {
-        console.log(req.file);
+        // console.log(req.file);
         var newUser = new User({
             email: req.body.email,
             password: req.body.password,
@@ -298,7 +298,7 @@ router.get('/:userId', passport.authenticate('jwt', {
 router.post('/editUser', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
-}), function (req, res) {
+}), upload.single('avatar'), function (req, res) {
     User.findById(req.user._id).exec(
         function (err, user) {
             if (err) throw err;
@@ -310,6 +310,17 @@ router.post('/editUser', passport.authenticate('jwt', {
                 user[p] = req.body[p];
             }
             user.location = [user.latlngAddress.coordinates[0], user.latlngAddress.coordinates[1]];
+
+            if (req.file) {
+                fs.unlink('/opt/yummy/' + user.avatar, (error) => {
+                    if (error) {
+                        console.error(error);
+                    }
+                    console.log('Hinh cu da duoc xoa');
+                });
+                user.avatar = req.file.path;
+            }
+
             user.save();
             res.send({ success: true, data: user, status: 200 });
         });
