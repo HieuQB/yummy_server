@@ -42,7 +42,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
     delete req.body.categories;
     const newPost = new Post(req.body);
     if (req.file)
-        newPost.images = req.file.path;
+        newPost.image = req.file.path;
     newPost.creator = req.user;
     newPost.latlngAddress = [newPost.location.coordinates[0], newPost.location.coordinates[1]];
     Post.addCategoryToDatabase(categories, (categories) => {
