@@ -35,7 +35,6 @@ var meetingRoutes = require('./routes/meetingRoutes');
 var rateRoutes = require('./routes/rateRoutes');
 var voucherRoutes = require('./routes/voucherRoutes');
 var chatRoutes = require('./routes/chatRoutes');
-var imageRoutes = require('./routes/imageRoutes');
 
 var app = express();
 
@@ -68,8 +67,7 @@ app.use('/api/meeting', meetingRoutes);
 app.use('/api/rate', rateRoutes);
 app.use('/api/voucher', voucherRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/image', imageRoutes);
-app.use('/image', express.static('uploads'));
+app.use('/uploads', express.static('uploads'));
 
 //catch unauthorized
 app.get('/unauthorized', function (req, res) {
