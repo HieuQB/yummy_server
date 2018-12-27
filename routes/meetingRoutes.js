@@ -14,31 +14,32 @@ router.post('/check_rating/:meetingId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    Meeting.findById(req.params.meetingId).exec((err, meeting) => {
+    Meeting.find({
+        '_id' :req.params.meetingId,
+        'is_finished': true
+    }).exec((err, meeting) => {
         if (err) {
             return res.json({
                 success: false,
                 message: err
             }).status(301);
-        } else if (!meeting) {
+        } else if (!meeting || meeting.length == 0) {
             return res.json({
                 success: false,
                 message: "meeting not found"
             }).status(404);
         } else {
-            console.log(meeting.joined_people);
-            console.log(req.user._id);
-            if (meeting.joined_people.indexOf(req.user._id) > -1) {
+            if (meeting[0].joined_people.indexOf(req.user._id) > -1) {
                 //In the array!
                 return res.json({
                     success: true,
-                    message: "In meeting",
+                    message: "you can rating this meeting",
                 }).status(200);
             } else {
                 //Not in the array
                 return res.json({
-                    success: true,
-                    message: "Not in meeting"
+                    success: false,
+                    message: "khong duoc rating"
                 }).status(200);
             }
         }
