@@ -10,10 +10,39 @@ var Meeting = require('../models/MeetingModel');
 var Comment = require('../models/CommentModel');
 var WaitingNoti = require('../models/WaitingNotiModel');
 
-router.post('/', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), function (req, res, next) {
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, new Date().toISOString() + file.originalname);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    // reject a file
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+};
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+});
+
+router.post('/', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), upload.single('images'), function (req, res, next) {
     var categories = req.body.categories;
     delete req.body.categories;
     const newPost = new Post(req.body);
+    if (req.file)
+        newPost.images = req.file.path;
     newPost.creator = req.user;
     newPost.latlngAddress = [newPost.location.coordinates[0], newPost.location.coordinates[1]];
     Post.addCategoryToDatabase(categories, (categories) => {

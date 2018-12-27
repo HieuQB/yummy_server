@@ -19,7 +19,6 @@ var bcrypt = require('bcrypt');
 var GeoPoint = require('geopoint');
 
 const multer = require('multer');
-
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, './uploads/');
@@ -52,7 +51,6 @@ router.post('/register',upload.single('avatar'), function (req, res) {
         res.json({ success: false, message: 'Please enter email and password.' });
     } else {
         console.log(req.file);
-
         var newUser = new User({
             email: req.body.email,
             password: req.body.password,
@@ -68,7 +66,7 @@ router.post('/register',upload.single('avatar'), function (req, res) {
             targetCharacter: req.body.targetCharacter,
             targetStyle: req.body.targetStyle,
             targetFood: req.body.targetFood,
-            location: [this.latlngAddress.coordinates[0], this.latlngAddress.coordinates[1]]
+            location: [req.body.latlngAddress.coordinates[0], req.body.latlngAddress.coordinates[1]]
         });
 
         // Attempt to save the user
