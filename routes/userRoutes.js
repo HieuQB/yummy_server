@@ -18,15 +18,45 @@ var geodist = require('geodist');
 var bcrypt = require('bcrypt');
 var GeoPoint = require('geopoint');
 
-router.post('/register', function (req, res) {
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, './uploads/');
+  },
+  filename: function(req, file, cb) {
+    cb(null, new Date().toISOString() + file.originalname);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  // reject a file
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5
+  },
+  fileFilter: fileFilter
+});
+
+
+router.post('/register',upload.single('avatar'), function (req, res) {
     if (!req.body.email || !req.body.password) {
         res.json({ success: false, message: 'Please enter email and password.' });
     } else {
+        console.log(req.file);
         var newUser = new User({
             email: req.body.email,
             password: req.body.password,
             fullName: req.body.fullName,
-            avatar: req.body.avatar,
+            avatar: req.file.path,
             address: req.body.address,
             gender: req.body.gender,
             birthday: req.body.birthday,

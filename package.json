@@ -20,6 +20,7 @@
     "mongoose": "^4.10.2",
     "mongoose-auto-increment-fix": "^5.0.2",
     "morgan": "~1.9.0",
+    "multer": "^1.4.1",
     "node-cmd": "^3.0.0",
     "node-geocoder": "^3.22.0",
     "nodemailer": "^4.6.4",
