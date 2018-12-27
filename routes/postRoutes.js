@@ -9,7 +9,7 @@ var Notification = require('../models/NotificationModel');
 var Meeting = require('../models/MeetingModel');
 var Comment = require('../models/CommentModel');
 var WaitingNoti = require('../models/WaitingNotiModel');
-
+const fs = require('fs');
 const multer = require('multer');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -37,7 +37,7 @@ const upload = multer({
     fileFilter: fileFilter
 });
 
-router.post('/', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), upload.single('images'), function (req, res, next) {
+router.post('/', passport.authenticate('jwt', { session: false, failureRedirect: '/unauthorized' }), upload.single('image'), function (req, res, next) {
     var categories = req.body.categories;
     delete req.body.categories;
     const newPost = new Post(req.body);
@@ -439,11 +439,20 @@ router.use('/:postId', passport.authenticate('jwt', { session: false, failureRed
 router.put('/:postId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
-}), function (req, res, next) {
+}), upload.single('image'), function (req, res, next) {
     //user is not creator?
     if (req.user.id === req.post.creator.id) {
         for (var p in req.body) {
             req.post[p] = req.body[p];
+        }
+        if (req.file) {
+            fs.unlink('/opt/yummy/' + req.post.image, (error) => {
+                if (error) {
+                    console.error(error);
+                }
+                console.log('Hinh cu da duoc xoa');
+            });
+            req.post.image = req.file.path;
         }
         req.post.modify_date = Date.now();
         req.post.latlngAddress = [req.post.location.coordinates[0], req.post.location.coordinates[1]]
