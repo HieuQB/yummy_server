@@ -67,8 +67,8 @@ router.post('/register',upload.single('avatar'), function (req, res) {
             myStyle: req.body.myStyle,
             targetCharacter: req.body.targetCharacter,
             targetStyle: req.body.targetStyle,
-            // targetFood: req.body.targetFood,
-            // location: [req.body.latlngAddress.coordinates[0], req.body.latlngAddress.coordinates[1]]
+            targetFood: req.body.targetFood,
+            location: [this.latlngAddress.coordinates[0], this.latlngAddress.coordinates[1]]
         });
 
         // Attempt to save the user
