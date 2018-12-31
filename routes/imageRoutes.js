@@ -53,7 +53,7 @@ router.post('/upload', upload.single('file'), passport.authenticate('jwt', {
 }), function (req, res, next) {
   res.json({
     success: true,
-    data: "http://35.229.172.236/uploads/" + req.file.path,
+    data:  req.file.path,
     message: "succsess"
   });
 });

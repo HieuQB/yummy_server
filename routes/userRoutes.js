@@ -18,35 +18,7 @@ var geodist = require('geodist');
 var bcrypt = require('bcrypt');
 var GeoPoint = require('geopoint');
 
-const multer = require('multer');
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, './uploads/');
-  },
-  filename: function(req, file, cb) {
-    cb(null, new Date().toISOString() + file.originalname);
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  // reject a file
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1024 * 1024 * 5
-  },
-  fileFilter: fileFilter
-});
-
-
-router.post('/register',upload.single('avatar'), function (req, res) {
+router.post('/register', function (req, res) {
     if (!req.body.email || !req.body.password) {
         res.json({ success: false, message: 'Please enter email and password.' });
     } else {
@@ -55,7 +27,7 @@ router.post('/register',upload.single('avatar'), function (req, res) {
             email: req.body.email,
             password: req.body.password,
             fullName: req.body.fullName,
-            avatar: req.file.path,
+            avatar: req.body.avatar,
             address: req.body.address,
             gender: req.body.gender,
             birthday: req.body.birthday,
@@ -86,7 +58,7 @@ router.post('/register',upload.single('avatar'), function (req, res) {
         });
     }
 });
-    
+
 router.post('/update_pass', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
@@ -298,7 +270,7 @@ router.get('/:userId', passport.authenticate('jwt', {
 router.post('/editUser', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
-}), upload.single('avatar'), function (req, res) {
+}), function (req, res) {
     User.findById(req.user._id).exec(
         function (err, user) {
             if (err) throw err;
@@ -306,21 +278,18 @@ router.post('/editUser', passport.authenticate('jwt', {
                 delete req.body.email;
             if (req.body.id)
                 delete req.body.id;
-            for (var p in req.body) {
-                user[p] = req.body[p];
-            }
-            user.location = [user.latlngAddress.coordinates[0], user.latlngAddress.coordinates[1]];
-
-            if (req.file) {
+            if (req.body.avatar) {
                 fs.unlink('/opt/yummy/' + user.avatar, (error) => {
                     if (error) {
                         console.error(error);
                     }
                     console.log('Hinh cu da duoc xoa');
                 });
-                user.avatar = req.file.path;
             }
-
+            for (var p in req.body) {
+                user[p] = req.body[p];
+            }
+            user.location = [user.latlngAddress.coordinates[0], user.latlngAddress.coordinates[1]];
             user.save();
             res.send({ success: true, data: user, status: 200 });
         });
