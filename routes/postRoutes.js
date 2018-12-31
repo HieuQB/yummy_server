@@ -411,7 +411,7 @@ router.use('/:postId', passport.authenticate('jwt', { session: false, failureRed
 router.put('/:postId', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
-}), upload.single('image'), function (req, res, next) {
+}), function (req, res, next) {
     //user is not creator?
     if (req.user.id === req.post.creator.id) {
         if (req.body.image) {
