@@ -86,7 +86,7 @@ router.post('/register',upload.single('avatar'), function (req, res) {
         });
     }
 });
-
+    
 router.post('/update_pass', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
