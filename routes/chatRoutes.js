@@ -24,7 +24,6 @@ router.post('/create_new_chat', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-
     // if (req.user._id == req.body.userChat) {
     //     res.json({
     //         success: false,
@@ -47,7 +46,7 @@ router.post('/create_new_chat', passport.authenticate('jwt', {
             });
         }
         else {
-            ListChat.find().exec((err, list_chat) => {
+            ListChat.find({'from': req.user._id}).exec((err, list_chat) => {
                 if (err) {
                     res.json({
                         success: false,
@@ -57,13 +56,13 @@ router.post('/create_new_chat', passport.authenticate('jwt', {
                 } else {
                     var isOld = false;
                     list_chat.forEach(element => {
-                        if (element.user == newChat.to) {
+                        if (element.to == newChat.to) {
                             isOld = true;
                         }
                     });
 
                     if (isOld) {
-                        ListChat.find({ 'user': newChat.to }).exec((err, chatItem) => {
+                        ListChat.find({ 'to': newChat.to }).exec((err, chatItem) => {
                             if (err) {
                                 res.json({
                                     success: false,
@@ -112,7 +111,8 @@ router.post('/create_new_chat', passport.authenticate('jwt', {
                         });
                     } else {
                         newItemListChat = new ListChat();
-                        newItemListChat.user = newChat.to;
+                        newItemListChat.to = newChat.to;
+                        newItemListChat.from = newChat.from;
                         newItemListChat.lastMessage = newChat.message;
                         newItemListChat.lastDate = newChat.date;
 
@@ -143,7 +143,6 @@ router.post('/create_new_chat', passport.authenticate('jwt', {
                                         }
                                     });
                                 }
-
                                 res.json({
                                     success: true,
                                     data: newChat,
@@ -163,8 +162,36 @@ router.get('/:page', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    ListChat.find({})
-        .populate('user')
+    ListChat.find({'from':req.user._id})
+        .populate('to')
+        .limit(10).skip(req.params.page * 10)
+        .sort({ lastDate: -1 })
+        .exec((err,list_chat) => {
+            if (err) {
+                res.json({
+                    success: false,
+                    data: {},
+                    message: `error is : ${err}`
+                });
+            } else {
+                res.json({
+                    success: true,
+                    data: list_chat,
+                    message: "succsess"
+                })
+            }
+        });
+});
+
+
+// get list chat của user với 1 người
+router.get('/list_chat/:user_id/:page', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Chat.find({'from':req.user._id, to: req.params.user_id})
+        .populate('to')
+        .populate('from')
         .limit(10).skip(req.params.page * 10)
         .sort({ lastDate: -1 })
         .exec((err,list_chat) => {

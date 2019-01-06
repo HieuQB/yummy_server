@@ -126,6 +126,7 @@ router.get('/list_user_near', passport.authenticate('jwt', {
                     message: err
                 }).status(301);
             }
+            console.log(list_user);
             list_user.forEach(item_user => {
                 point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
                 point2 = new GeoPoint(item_user.location[1], item_user.location[0]);
