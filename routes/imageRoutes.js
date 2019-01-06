@@ -75,16 +75,16 @@ crypto = require('crypto');
 var fs = require('fs');
 
 storage = multer.diskStorage({
-    destination: './uploads/',
-    filename: function(req, file, cb) {
-      return crypto.pseudoRandomBytes(16, function(err, raw) {
-        if (err) {
-          return cb(err);
-        }
-        return cb(null, "" + (raw.toString('hex')) + (path.extname(file.originalname)));
-      });
-    }
-  });
+  destination: './uploads/',
+  filename: function (req, file, cb) {
+    return crypto.pseudoRandomBytes(16, function (err, raw) {
+      if (err) {
+        return cb(err);
+      }
+      return cb(null, "" + (raw.toString('hex')) + (path.extname(file.originalname)));
+    });
+  }
+});
 
 
 // Post files
@@ -92,19 +92,23 @@ router.post(
   "/upload",
   multer({
     storage: storage
-  }).single('picture'), function(req, res) {
+  }).single('picture'), function (req, res) {
     console.log(req.file);
     console.log(req.body);
-    res.redirect("/uploads/" + req.file.filename);
+    // res.redirect("/uploads/" + req.file.filename);
     console.log(req.file.filename);
-    return res.status(200).end();
+    res.json({
+      success: true,
+      data:req.file.filename,
+      message: "succsess"
+    });
   });
 
-  router.get('/uploads/:upload', function (req, res){
+router.get('/uploads/:upload', function (req, res) {
   file = req.params.upload;
   console.log(req.params.upload);
   var img = fs.readFileSync(__dirname + "/uploads/" + file);
-  res.writeHead(200, {'Content-Type': 'image/png' });
+  res.writeHead(200, { 'Content-Type': 'image/png' });
   res.end(img, 'binary');
 
 });

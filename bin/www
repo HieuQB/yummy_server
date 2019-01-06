@@ -45,16 +45,7 @@ io.sockets.on('connection', function (socket) {
       name: data_user.mFullName,
       userID: data_user.mId
     });
-    // lưu thông tin user online
-    // newUserOnline.save(function (err, user) {
-    //   if (err) {
-    //     console.log("không thể lưu user online: "+err);
-    //   } else {
-    //     console.log("add user online: "+user);
-    //   }
-    // });
     global.socket_list[data_user.mId.toString()] = socket;
-
 
     // kiểm tra uesr có trong danh sách waiting noti hay không
     // nếu có thì gửi lại noti cho nó
@@ -91,7 +82,7 @@ io.sockets.on('connection', function (socket) {
       if (!chat) {
         console.log("chat not found");
       } else {
-        console.log(chat);
+        console.log("set lại biến is_seen thành công");
       }
     });
   });
