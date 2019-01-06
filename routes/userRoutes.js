@@ -17,6 +17,7 @@ var RatingAverage = require('../models/RatingAverageModel');
 var geodist = require('geodist');
 var bcrypt = require('bcrypt');
 var GeoPoint = require('geopoint');
+var fs = require('fs');
 
 router.post('/register', function (req, res) {
     if (!req.body.email || !req.body.password) {
