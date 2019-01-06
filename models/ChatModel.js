@@ -6,7 +6,9 @@ var ChatSchema = new Schema({
     from: {type: Number, ref:"User"},
     to: {type: Number, ref: "User"},
     message: {type: String},
-    date: {type: Date, default: Date.now()}
+    date: {type: Date, default: Date.now()},
+    is_seen: {type: Boolean, default: false},
+    users: [{type: Number}]
 }, {
     versionKey: false
 });

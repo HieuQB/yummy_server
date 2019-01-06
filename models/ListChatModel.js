@@ -3,10 +3,9 @@ var Schema = mongoose.Schema;
 var autoIncrement = require('mongoose-auto-increment-fix');
 
 var ListChatSchema = new Schema({
-    to: {type: Number, ref:"User"},
-    lastMessage: {type: String},
-    lastDate: {type: Date},
-    from: {type: Number, ref: "User"}
+    lastMessage: {type: Number, ref: 'Chat'},
+    users: [{type: Number, ref:'User'}],
+    lastDate: {type:Date, default: Date.now()}
 }, {
     versionKey: false
 });
