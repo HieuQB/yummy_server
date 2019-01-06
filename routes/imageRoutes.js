@@ -99,7 +99,7 @@ router.post(
     console.log(req.file.filename);
     res.json({
       success: true,
-      data:req.file.filename,
+      data:"/uploads/"+req.file.filename,
       message: "succsess"
     });
   });
