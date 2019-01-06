@@ -78,8 +78,11 @@ router.post('/create_new_chat', passport.authenticate('jwt', {
                             } else {
                                 // chat socket
                                 if (global.socket_list[newChat.to.toString()] != null) {
+                                    newChat.populate('from')
                                     console.log("goi emit notify-user-" + newChat.to.toString());
-                                    global.socket_list[newChat.to.toString()].emit("notify-user-" + newChat.to.toString(), { message: newChat });
+                                    Chat.populate(newChat, {path:"from"}, function(err, newChat) { 
+                                        global.socket_list[newChat.to.toString()].emit("notify-user-" + newChat.to.toString(), { message: newChat });
+                                     });
                                 } else {
                                     console.log("socket null");
                                 }

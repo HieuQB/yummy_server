@@ -10,6 +10,7 @@ var http = require('http');
 var RealServer = require('../routes/realServer');
 var UserOnline = require('../models/UserOnlineModel');
 var WaitingNoti = require('../models/WaitingNotiModel');
+var Chat = require('../models/ChatModel');
 // var SocketSingleton = require('./socket');#
 /**
  * Get port from environment and store in Express.
@@ -79,12 +80,20 @@ io.sockets.on('connection', function (socket) {
       });
   });
 
-  socket.on('disconnect', function () {
-    console.log('co nguoi offline');
-    console.log(data_user);
-    if (data_user) {
-      delete global.socket_list[data_user.mId.toString()];
-    }
+  socket.on('seenMessage', function (chatId) {
+    Chat.findOneAndUpdate(chatId).exec((err, chat) => {
+      chat.is_seen = true;
+    });
+    Chat.findOneAndUpdate({ _id: chatId }, { $set: { is_seen: true } }, function (err, chat) {
+      if (err) {
+        console.log(err);
+      }
+      if (!chat) {
+        console.log("chat not found");
+      } else {
+        console.log(chat);
+      }
+    });
   });
 });
 
@@ -151,8 +160,8 @@ function onListening() {
 
 
 var minutes = 15,
-  the_interval = minutes * 60 *1000;
-  var realServer = new RealServer();
+  the_interval = minutes * 60 * 1000;
+var realServer = new RealServer();
 setInterval(function () {
   realServer.setStatusPost();
   realServer.setStatusMeeting();
@@ -162,7 +171,7 @@ setInterval(function () {
 }, the_interval);
 
 var minutes_1 = 180, // 3 tiếng thì update cái này 1 lần
-  the_interval_1 = minutes_1 * 60 *1000;
+  the_interval_1 = minutes_1 * 60 * 1000;
 setInterval(function () {
   realServer.getVoucher();
 }, the_interval_1);
