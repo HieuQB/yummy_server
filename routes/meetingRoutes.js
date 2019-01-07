@@ -211,8 +211,6 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                         }).status(301);
                     } else if (comment) {
                         meeting.joined_people.forEach(function (people) {
-                            console.log("people: " + people);
-                            console.log("craetor: " + comment.creator);
                             if (people != comment.creator._id) {
                                 // Create Notification in Database
                                 var newNoti = new Notification({
@@ -286,7 +284,6 @@ router.get('/list/:page', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     var page = req.params.page;
-    console.log(req.user);
     Meeting.find(
         { 'joined_people': { $in: [req.user._id] } }
     ).populate("joined_people").populate("comments")

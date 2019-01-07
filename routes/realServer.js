@@ -36,7 +36,7 @@ class RealServer {
             }
         ).exec((err, posts) => {
             if (err) {
-                console.log(err);
+                // console.log(err);
             } else if (!posts) {
                 console.log("Post not found");
             } else {
@@ -45,7 +45,7 @@ class RealServer {
                     item.is_active = false;
                     item.save((err) => {
                         if (err) {
-                            console.log(err);
+                            // console.log(err);
                         } else {
                             console.log('Vừa gọi API set lại status Post');
                         }
@@ -64,7 +64,7 @@ class RealServer {
             }
         ).exec((err, meetings) => {
             if (err) {
-                console.log(err);
+                // console.log(err);
             } else if (!meetings) {
                 console.log("Meeting not found");
             } else {
@@ -72,7 +72,7 @@ class RealServer {
                     item.is_finished = true;
                     item.save((err) => {
                         if (err) {
-                            console.log(err);
+                            // console.log(err);
                         } else {
                             console.log('Vừa gọi API set lại status Meeting');
                         }
@@ -92,7 +92,7 @@ class RealServer {
             }
         ).exec((err, meetings) => {
             if (err) {
-                console.log(err);
+                // console.log(err);
             } else if (!meetings) {
                 console.log("Meeting not found");
             } else {
@@ -101,7 +101,7 @@ class RealServer {
 
                     item.save((err) => {
                         if (err) {
-                            console.log(err);
+                            // console.log(err);
                         } else {
                             item.joined_people.forEach(function (userID) {
                                 // Create Notification in Database
@@ -130,7 +130,7 @@ class RealServer {
 
                                         newWaiting.save(function (err, WaitingNoti) {
                                             if (err) {
-                                                console.log(err);
+                                                // console.log(err);
                                             } else {
                                                 console.log("THÊM waiting Noti: " + WaitingNoti);
                                             }
@@ -156,7 +156,7 @@ class RealServer {
             }
         }).exec((err, posts) => {
             if (err) {
-                console.log(err);
+                // console.log(err);
             } else {
                 // Xử lí tại đây nha
                 posts.forEach(function (item_post) {
@@ -165,7 +165,7 @@ class RealServer {
                         item_post.is_noti = true;
                         item_post.save((err, post) => {
                             if (err) {
-                                console.log(err);
+                                // console.log(err);
                             } else {
                                 console.log("Gọi Noti thành công khi bài post sáp hết hạn");
                                 // Create Notification in Database
@@ -210,7 +210,7 @@ class RealServer {
                 }
             ).exec((err, meetings) => {
                 if (err) {
-                    console.log(err);
+                    // console.log(err);
                     reject(err);
                 } else if (!meetings) {
                     console.log("meetings not found");
@@ -257,7 +257,7 @@ class RealServer {
                         newRate.content = "Hệ thống tự đánh giá";
                         newRate.save((err, newRating) => {
                             if (err) {
-                                console.log(err);
+                                // console.log(err);
                             } else {
                                 console.log("tạo thành công rating với ID: " + newRating._id.toString());
                                 // Xử lí update rating average: điểm đánh giá từng thằng trong meeting
@@ -268,7 +268,7 @@ class RealServer {
                                             count_people++;
                                             item.save((err) => {
                                                 if (err) {
-                                                    console.log(err);
+                                                    // console.log(err);
                                                 }
                                             });
                                         }
@@ -280,7 +280,7 @@ class RealServer {
                 }
             });
         }, function (err) {
-            console.log(err);
+            // console.log(err);
         })
     }
 
@@ -321,7 +321,6 @@ class RealServer {
                     var myPromiseHot = new Promise(function (resolve, reject) {
                         var place = voucher.location;
                         if (voucher.location == '' || voucher.location == 'Nhiều địa điểm') {
-                            console.log(voucher.location);
                             place = 'Động Phong Nha Kẻ Bàng'
                         }
                         geocoder.geocode(place)
@@ -342,7 +341,7 @@ class RealServer {
                         return voucher;
 
                     }, function (err) {
-                        console.log(err);
+                        // console.log(err);
                         return voucher;
                     });
                 });
@@ -350,14 +349,13 @@ class RealServer {
                 Promise.all(promiseArrHot).then(function () {
                     Voucher.remove({}, function (err) {
                         if (err) {
-                            console.log(err);
+                            // console.log(err);
                         } else {
                             var list_update = list_voucher_hotdeal;
-                            console.log(list_voucher_hotdeal);
                             setTimeout(function () {
                                 Voucher.create(list_update, function (err) {
                                     if (err) {
-                                        console.log(err);
+                                        // console.log(err);
                                     } else {
                                         console.log("luu thanh cong " + list_update.length.toString() + " voucher hot deal");
                                     }
@@ -459,11 +457,10 @@ class RealServer {
                                             let coordinates = [result[0].longitude, result[0].latitude]
                                             voucher.latlngAddress.coordinates = coordinates;
                                         }
-                                        console.log(voucher);
                                         return voucher;
 
                                     }, function (err) {
-                                        console.log(err);
+                                        // console.log(err);
                                         return voucher;
                                     });
                                 });
@@ -474,7 +471,7 @@ class RealServer {
                                     setTimeout(function () {
                                         Voucher.create(list_update, function (err) {
                                             if (err) {
-                                                console.log(err);
+                                                // console.log(err);
                                             } else {
                                                 console.log("luu thanh cong " + list_update.length.toString() + " voucher foody");
                                             }
@@ -482,13 +479,13 @@ class RealServer {
                                     }, 20000);
 
                                 }).catch(function (err) {
-                                    console.log(err);
+                                    // console.log(err);
                                 });
                             });
                         }
                     });
                 }).catch(function (err) {
-                    console.log(err);
+                    // console.log(err);
                 });
             }
         });

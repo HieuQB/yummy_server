@@ -128,7 +128,7 @@ router.get('/list_user_near', passport.authenticate('jwt', {
                     message: err
                 }).status(301);
             }
-            console.log(list_user);
+            // console.log(list_user);
             list_user.forEach(item_user => {
                 point1 = new GeoPoint(req.user.latlngAddress.coordinates[1], req.user.latlngAddress.coordinates[0]);
                 point2 = new GeoPoint(item_user.location[1], item_user.location[0]);
@@ -544,7 +544,7 @@ router.post('/invite', passport.authenticate('jwt', {
 
                     newWaiting.save(function (err, WaitingNoti) {
                         if (err) {
-                            console.log(err);
+                            // console.log(err);
                         } else {
                             return res.json({
                                 success: true,
@@ -645,7 +645,7 @@ router.post('/acceptInvite', passport.authenticate('jwt', {
 
                                         newWaiting.save(function (err, WaitingNoti) {
                                             if (err) {
-                                                console.log(err);
+                                                // console.log(err);
                                                 res.json({
                                                     success: false,
                                                     message: err

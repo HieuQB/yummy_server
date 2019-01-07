@@ -43,7 +43,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
                 ]).limit(10)
                     .exec((err, list_user) => {
                         if (err) {
-                            console.log(err);
+                            // console.log(err);
                         } else if (list_user.length > 0) {
                             // NOti tới thông tin bài viết
                             list_user.forEach((user) => {
@@ -75,7 +75,7 @@ router.post('/', passport.authenticate('jwt', { session: false, failureRedirect:
 
                                         newWaiting.save(function (err, WaitingNoti) {
                                             if (err) {
-                                                console.log(err);
+                                                // console.log(err);
                                             } else {
                                                 console.log("THÊM waiting Noti: " + WaitingNoti);
                                             }
@@ -141,7 +141,6 @@ router.post('/:page/list', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     var page = req.params.page;
-    console.log(req.body.flag);
     if (req.body.flag == true) {
         Post.find({
             // Điều kiện lọc
@@ -259,7 +258,7 @@ router.post('/list_main', function (req, res, next) {
                             // Lấy ra các trường của Creator trong jsonData
                             // rồi lấy thêm thông tin của user đăng nhập (request)
                             // rồi dùng công thức để tính
-                            console.log(items);
+                            // console.log(items);
                         }
 
                     });
@@ -526,7 +525,7 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
 
                 newWaiting.save(function (err, WaitingNoti) {
                     if (err) {
-                        console.log(err);
+                        // console.log(err);
                     } else {
                         console.log("THÊM waiting Noti: " + WaitingNoti);
                     }
@@ -570,7 +569,7 @@ router.post('/:postId/interested', passport.authenticate('jwt', { session: false
 
                 newWaiting.save(function (err, WaitingNoti) {
                     if (err) {
-                        console.log(err);
+                        // console.log(err);
                     } else {
                         console.log("THÊM waiting Noti: " + WaitingNoti);
                     }
