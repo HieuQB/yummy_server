@@ -38,10 +38,11 @@ router.post('/register', function (req, res) {
             myStyle: req.body.myStyle,
             targetCharacter: req.body.targetCharacter,
             targetStyle: req.body.targetStyle,
-            targetFood: req.body.targetFood,
-            location: [req.body.latlngAddress.coordinates[0], req.body.latlngAddress.coordinates[1]]
+            targetFood: req.body.targetFood
         });
-
+        if (req.body.latlngAddress) {
+            newUser.location = [req.body.latlngAddress.coordinates[0], req.body.latlngAddress.coordinates[1]];
+        }
         // Attempt to save the user
         newUser.save(function (err, user) {
             if (err) {
