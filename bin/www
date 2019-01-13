@@ -71,6 +71,14 @@ io.sockets.on('connection', function (socket) {
       });
   });
 
+  socket.on('disconnect', function () {
+    console.log('co nguoi offline');
+    console.log(data_user);
+    if (data_user) {
+      delete global.socket_list[data_user.mId.toString()];
+    }
+  });
+  
   socket.on('seenMessage', function (chatId) {
     Chat.findOneAndUpdate(chatId).exec((err, chat) => {
       chat.is_seen = true;
