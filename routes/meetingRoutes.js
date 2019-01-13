@@ -212,13 +212,14 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                     } else if (comment) {
                         meeting.joined_people.forEach(function (people) {
                             if (people != comment.creator._id) {
+                                comment.parentID = meeting._id;
                                 // Create Notification in Database
                                 var newNoti = new Notification({
                                     user_id: people,
                                     // type: 2, // 2 = type Meeting
                                     image: comment.creator.avatar,
                                     title: comment.creator.fullName.toString() + " vừa bình luận meeting có mặt bạn!",
-                                    content: { type: 2, data: comment }
+                                    content: { type: 4, data: comment }
                                 });
 
                                 // Attempt to save the user
@@ -234,12 +235,13 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                                     // }
                                     if (global.socket_list[noti.user_id.toString()] != null) {
                                         console.log("goi emit notify-user-" + noti.user_id.toString());
-                                        global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+                                        global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { comment: noti });
                                     } else {
                                         console.log("socket null");
                                         newWaiting = new WaitingNoti({
                                             userID: noti.user_id,
-                                            dataNoti: noti
+                                            dataNoti: noti,
+                                            type: "comment"
                                         });
 
                                         newWaiting.save(function (err, WaitingNoti) {

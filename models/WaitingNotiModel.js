@@ -4,7 +4,8 @@ var autoIncrement = require('mongoose-auto-increment-fix');
 
 var WaitingNotiSchema = new Schema({
     userID: {type: Number, ref:"User"},
-    dataNoti: {type: Number, ref: "Notification"}
+    dataNoti: {type: Number, ref: "Notification"},
+    type: {type:String, default: "nomal"} // 0 là normal, 
 }, {
     versionKey: false
 });

@@ -125,7 +125,8 @@ class RealServer {
 
                                         var newWaiting = new WaitingNoti({
                                             userID: noti.user_id,
-                                            dataNoti: noti
+                                            dataNoti: noti,
+                                            type: "rating"
                                         });
 
                                         newWaiting.save(function (err, WaitingNoti) {
