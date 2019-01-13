@@ -16,6 +16,9 @@ var CommentSchema = new Schema({
     modify_date:{
         type: Date,
         default: Date.now()
+    },
+    parentID: {
+        type: Number
     }
 }, {
     usePushEach: true,
