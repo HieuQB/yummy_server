@@ -218,7 +218,7 @@ router.post('/:meetingId/add_comment', passport.authenticate('jwt', {
                                     user_id: people,
                                     // type: 2, // 2 = type Meeting
                                     image: comment.creator.avatar,
-                                    title: comment.creator.fullName.toString() + " vừa bình luận meeting có mặt bạn!",
+                                    title: comment.creator.fullName.toString() + " vừa gửi tin nhắn đến cuộc hẹn của bạn!",
                                     content: { type: 4, data: comment }
                                 });
 

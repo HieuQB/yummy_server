@@ -141,7 +141,7 @@ router.get('/list_chat/:user_id/:page', passport.authenticate('jwt', {
         .populate('to')
         .populate('from')
         .limit(10).skip(req.params.page * 10)
-        .sort({ date: 1 })
+        .sort({ date: -1 })
         .exec((err, list_chat) => {
             if (err) {
                 res.json({
