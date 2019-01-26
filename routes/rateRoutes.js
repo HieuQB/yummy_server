@@ -81,7 +81,8 @@ router.post('/rating_meeting', passport.authenticate('jwt', {
                                             });
                                         }
                                         if (user) {
-                                            user.trust_point += rate.point;
+                                            user.count_people_evaluate ++;
+                                            user.main_point += rate.point;
                                             user.save(function (err, userlast) {
                                                 if (err) {
                                                     res.json({

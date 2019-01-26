@@ -15,7 +15,7 @@ router.post('/check_rating/:meetingId', passport.authenticate('jwt', {
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
     Meeting.find({
-        '_id' :req.params.meetingId,
+        '_id': req.params.meetingId,
         'is_finished': true
     }).exec((err, meeting) => {
         if (err) {
@@ -643,7 +643,7 @@ router.post('/kick_user/:meetingID', passport.authenticate('jwt', {
                 });
             } else if (err) {
                 return res.json({
-                    success: true,
+                    success: false,
                     data: {},
                     message: err
                 });
@@ -651,4 +651,68 @@ router.post('/kick_user/:meetingID', passport.authenticate('jwt', {
         });
     });
 });
+
+// Mời thêm người trong meeting
+router.post('/invite_user/:meetingID', passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/unauthorized'
+}), function (req, res, next) {
+    Meeting.findById(req.params.meetingID).exec((err, meeting) => {
+        if (err) {
+            return res.json({
+                success: false,
+                data: {},
+                message: err
+            });
+        }
+        if (!meeting) {
+            return res.json({
+                success: false,
+                data: {},
+                message: 'Meeting not found'
+            });
+        } else {
+            //
+            console.log(req.user._id);
+            console.log(meeting.joined_people.indexOf(req.user._id));
+            if (meeting.joined_people.indexOf(req.user._id) == -1) {
+                return res.json({
+                    success: false,
+                    data: {},
+                    message: 'Bạn không có quyền thêm người'
+                });
+            } else {
+                // console.log(meeting.joined_people);
+                // console.log(req.body.user_invite);
+                // console.log(meeting.joined_people.indexOf(req.body.user_invite));
+                if (meeting.joined_people.indexOf(req.body.user_invite) >= 1) {
+                    return res.json({
+                        success: false,
+                        data: {},
+                        message: 'User đã có mặt trong meeting'
+                    });
+                } else {
+                    meeting.joined_people.push(req.body.user_invite);
+                    meeting.save((err, meeting) => {
+                        if (err) {
+                            return res.json({
+                                success: false,
+                                data: {},
+                                message: err
+                            });
+                        }
+                        return res.json({
+                            success: true,
+                            data: meeting,
+                            message: 'Thêm người thành công'
+                        });
+                    });
+                }
+            }
+
+            //
+        }
+    });
+});
+
 module.exports = router;

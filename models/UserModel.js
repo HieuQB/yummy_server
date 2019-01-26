@@ -50,10 +50,12 @@ var UserSchema = new Schema({
         type: Number,
         ref: 'Category'
     }],
+    // điểm tin cậy: hệ thống sẽ tự tích khi mà người dùng tham gia đi ăn. Mỗi lần đi ăn sẽ được cộng cái điểm mặc định đó..còn nếu tự ý thoát ra sẽ bị trừ cái điểm đó
     trust_point: {
         type: Number,
         default: 50
     },
+    // điểm này bằng với tổng số điểm được đánh giá từ meeting và chia cho số người đánh giá meeting (count_people_evaluate)
     main_point: {
         type: Number,
         default: 0
@@ -142,6 +144,7 @@ UserSchema.pre('save', function (next) {
     if (this.count_people_evaluate == 0) {
         this.point_default = (point_average_trust_point + 5) / 2;
     } else {
+        // this.point_default = (this.main_point + point_average_trust_point) / 2;
         this.point_default = ((this.main_point / this.count_people_evaluate) + point_average_trust_point) / 2;
     }
     console.log(this.point_default);
