@@ -686,60 +686,12 @@ router.post('/invite_user/:meetingID', passport.authenticate('jwt', {
                         message: 'User đã có mặt trong meeting'
                     });
                 } else {
-                    meeting.joined_people.push(req.body.user_invite);
-                    meeting.save((err, meeting) => {
-                        if (err) {
-                            return res.json({
-                                success: false,
-                                data: {},
-                                message: err
-                            });
-                        }
-                        return res.json({
-                            success: true,
-                            data: meeting,
-                            message: 'Thêm người thành công'
-                        });
+                    return res.json({
+                        success: true,
+                        data: [],
+                        message: 'Gọi API user/invite để tiếp tục'
                     });
 
-                     // Create Notification in Database
-                     var newNoti = new Notification({
-                        user_id: people._id,
-                        // type: 2, // 2 = type Meeting
-                        image: meeting.creator.avatar,
-                        title: content,
-                        content: { type: 2, data: meeting }
-                    });
-                    // Attempt to save the user
-                    newNoti.save(function (err, noti) {
-                        if (err) {
-                            return res.json({
-                                success: false,
-                                message: err
-                            }).status(301);
-                        }
-                        if (global.socket_list[noti.user_id.toString()] != null) {
-                            console.log("goi emit notify-user-" + noti.user_id.toString());
-                            global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
-                        } else {
-                            console.log("socket null");
-                            newWaiting = new WaitingNoti({
-                                userID: noti.user_id,
-                                dataNoti: noti
-                            });
-
-                            newWaiting.save(function (err, WaitingNoti) {
-                                if (err) {
-                                    console.log(err);
-                                } else {
-                                    console.log("THÊM waiting Noti: " + WaitingNoti);
-                                }
-                            });
-                        }
-                    });
-
-                    // Gửi socket cho người được mời
-                    
                 }
             }
         }
