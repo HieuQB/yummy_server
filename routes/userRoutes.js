@@ -504,7 +504,9 @@ router.post('/invite', passport.authenticate('jwt', {
     newInvite.location = req.body.location;
     newInvite.place = req.body.place;
     newInvite.time = req.body.time;
-
+    if (req.body.meeting) {
+        newInvite.meeting = req.body.meeting;
+    }
     newInvite.save(function (err, invite_data) {
         if (err) {
             res.json({
@@ -564,8 +566,6 @@ router.post('/acceptInvite', passport.authenticate('jwt', {
     session: false,
     failureRedirect: '/unauthorized'
 }), function (req, res, next) {
-    const newMeeting = new Meeting();
-    var joined_people = [];
     Invite.findById(req.body.request).populate('creator').populate('userSearch').exec((err, invite) => {
         if (err) {
             res.json({
@@ -578,105 +578,176 @@ router.post('/acceptInvite', passport.authenticate('jwt', {
                 message: "Invite not found"
             }).status(404);
         } else {
-            joined_people = [invite.creator._id, invite.userSearch._id];
-            newMeeting.creator = invite.creator;
-            newMeeting.location = invite.location;
-            newMeeting.place = invite.place;
-            newMeeting.time = invite.time;
-            if (invite.userSearch._id == req.user._id) {
-                Meeting.addJoinPeopleToDatabase(joined_people, (joined_people) => {
-                    newMeeting.joined_people = joined_people;
-                    var listRatingAverage = [];
-                    joined_people.forEach(function (people) {
-                        var newRatingAverage = new RatingAverage();
-                        newRatingAverage.user = people;
-                        listRatingAverage.push(newRatingAverage);
-                    });
-                    // console.log(listRatingAverage);
-                    RatingAverage.create(listRatingAverage, function (err) {
-                        if (err) {
-                            return res.json({
-                                success: false,
-                                message: err
-                            }).status(301);
-                        }
-                        // console.log(arguments);
-                        if (!arguments[1])
-                            return res.json({
-                                success: false,
-                                message: "can not create meeting"
-                            }).status(301);
-                        newMeeting.list_point_average = arguments[1];
-                        // Attempt to save the user
-                        newMeeting.save(function (err, meeting) {
+            if (invite.meeting == 0) {
+                const newMeeting = new Meeting();
+                var joined_people = [];
+                joined_people = [invite.creator._id, invite.userSearch._id];
+                newMeeting.creator = invite.creator;
+                newMeeting.location = invite.location;
+                newMeeting.place = invite.place;
+                newMeeting.time = invite.time;
+                if (invite.userSearch._id == req.user._id) {
+                    Meeting.addJoinPeopleToDatabase(joined_people, (joined_people) => {
+                        newMeeting.joined_people = joined_people;
+                        var listRatingAverage = [];
+                        joined_people.forEach(function (people) {
+                            var newRatingAverage = new RatingAverage();
+                            newRatingAverage.user = people;
+                            listRatingAverage.push(newRatingAverage);
+                        });
+                        // console.log(listRatingAverage);
+                        RatingAverage.create(listRatingAverage, function (err) {
                             if (err) {
                                 return res.json({
                                     success: false,
                                     message: err
                                 }).status(301);
-                            } else {
-                                // Create Notification in Database
-                                var newNoti = new Notification({
-                                    user_id: meeting.creator._id,
-                                    image: invite.userSearch.avatar,
-                                    title: invite.userSearch.fullName.toString() + " vừa đồng ý lời mời đi ăn của bạn. Ấn Đồng ý để xem chi tiết cuộc hẹn",
-                                    content: { type: 2, data: meeting }
-                                });
-                                // Attempt to save the user
-                                newNoti.save(function (err, noti) {
-                                    if (err) {
-                                        res.json({
-                                            success: false,
-                                            message: err
-                                        }).status(301);
-                                    } else if (global.socket_list[noti.user_id.toString()] != null) {
-                                        global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { accept: noti });
-                                        res.json({
-                                            success: true,
-                                            message: "create meeting thành công",
-                                            data: meeting
-                                        }).status(200);
-                                    } else {
-                                        console.log("socket null");
-                                        newWaiting = new WaitingNoti({
-                                            userID: noti.user_id,
-                                            dataNoti: noti
-                                        });
+                            }
+                            // console.log(arguments);
+                            if (!arguments[1])
+                                return res.json({
+                                    success: false,
+                                    message: "can not create meeting"
+                                }).status(301);
+                            newMeeting.list_point_average = arguments[1];
+                            // Attempt to save the user
+                            newMeeting.save(function (err, meeting) {
+                                if (err) {
+                                    return res.json({
+                                        success: false,
+                                        message: err
+                                    }).status(301);
+                                } else {
+                                    // Create Notification in Database
+                                    var newNoti = new Notification({
+                                        user_id: meeting.creator._id,
+                                        image: invite.userSearch.avatar,
+                                        title: invite.userSearch.fullName.toString() + " vừa đồng ý lời mời đi ăn của bạn. Ấn Đồng ý để xem chi tiết cuộc hẹn",
+                                        content: { type: 2, data: meeting }
+                                    });
+                                    // Attempt to save the user
+                                    newNoti.save(function (err, noti) {
+                                        if (err) {
+                                            res.json({
+                                                success: false,
+                                                message: err
+                                            }).status(301);
+                                        } else if (global.socket_list[noti.user_id.toString()] != null) {
+                                            global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { accept: noti });
+                                            res.json({
+                                                success: true,
+                                                message: "create meeting thành công",
+                                                data: meeting
+                                            }).status(200);
+                                        } else {
+                                            console.log("socket null");
+                                            newWaiting = new WaitingNoti({
+                                                userID: noti.user_id,
+                                                dataNoti: noti
+                                            });
 
-                                        newWaiting.save(function (err, WaitingNoti) {
-                                            if (err) {
-                                                // console.log(err);
-                                                res.json({
-                                                    success: false,
-                                                    message: err
-                                                }).status(301);
-                                            } else {
-                                                console.log("THÊM waiting Noti: " + WaitingNoti);
-                                                res.json({
-                                                    success: true,
-                                                    message: "create meeting thành công",
-                                                    data: meeting
-                                                }).status(200);
-                                            }
-                                        });
+                                            newWaiting.save(function (err, WaitingNoti) {
+                                                if (err) {
+                                                    // console.log(err);
+                                                    res.json({
+                                                        success: false,
+                                                        message: err
+                                                    }).status(301);
+                                                } else {
+                                                    console.log("THÊM waiting Noti: " + WaitingNoti);
+                                                    res.json({
+                                                        success: true,
+                                                        message: "create meeting thành công",
+                                                        data: meeting
+                                                    }).status(200);
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    })
+                } else {
+                    res.json({
+                        success: false,
+                        message: "bạn không có quyền chấp nhận request này",
+                        data: {}
+                    }).status(404);
+
+                }
+            } else {
+                Meeting.findById(invite.meeting).exec((err, meeting) => {
+                    if (err) {
+                        return res.json({
+                            success: false,
+                            data: {},
+                            message: err
+                        });
+                    }
+                    if (!meeting) {
+                        return res.json({
+                            success: false,
+                            data: {},
+                            message: 'Meeting not found'
+                        });
+                    } else {
+                        meeting.joined_people.push(invite.userSearch);
+                        meeting.save((err, meeting) => {
+                            if (err) {
+                                return res.json({
+                                    success: false,
+                                    data: {},
+                                    message: err
+                                });
+                            }
+                            return res.json({
+                                success: true,
+                                data: meeting,
+                                message: 'Thêm người thành công'
+                            });
+                        });
+
+                        // Create Notification in Database
+                        var newNoti = new Notification({
+                            user_id: people._id,
+                            // type: 2, // 2 = type Meeting
+                            image: meeting.creator.avatar,
+                            title: content,
+                            content: { type: 2, data: meeting }
+                        });
+                        // Attempt to save the user
+                        newNoti.save(function (err, noti) {
+                            if (err) {
+                                return res.json({
+                                    success: false,
+                                    message: err
+                                }).status(301);
+                            }
+                            if (global.socket_list[noti.user_id.toString()] != null) {
+                                console.log("goi emit notify-user-" + noti.user_id.toString());
+                                global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+                            } else {
+                                console.log("socket null");
+                                newWaiting = new WaitingNoti({
+                                    userID: noti.user_id,
+                                    dataNoti: noti
+                                });
+
+                                newWaiting.save(function (err, WaitingNoti) {
+                                    if (err) {
+                                        console.log(err);
+                                    } else {
+                                        console.log("THÊM waiting Noti: " + WaitingNoti);
                                     }
                                 });
                             }
                         });
-                    });
-                })
-            } else {
-                res.json({
-                    success: false,
-                    message: "bạn không có quyền chấp nhận request này",
-                    data: {}
-                }).status(404);
-
+                    }
+                });
             }
         }
     });
-
-
 });
 
 router.post('/rejectRequest', passport.authenticate('jwt', {

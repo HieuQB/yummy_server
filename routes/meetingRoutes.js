@@ -672,9 +672,6 @@ router.post('/invite_user/:meetingID', passport.authenticate('jwt', {
                 message: 'Meeting not found'
             });
         } else {
-            //
-            console.log(req.user._id);
-            console.log(meeting.joined_people.indexOf(req.user._id));
             if (meeting.joined_people.indexOf(req.user._id) == -1) {
                 return res.json({
                     success: false,
@@ -682,9 +679,6 @@ router.post('/invite_user/:meetingID', passport.authenticate('jwt', {
                     message: 'Bạn không có quyền thêm người'
                 });
             } else {
-                // console.log(meeting.joined_people);
-                // console.log(req.body.user_invite);
-                // console.log(meeting.joined_people.indexOf(req.body.user_invite));
                 if (meeting.joined_people.indexOf(req.body.user_invite) >= 1) {
                     return res.json({
                         success: false,
@@ -707,10 +701,47 @@ router.post('/invite_user/:meetingID', passport.authenticate('jwt', {
                             message: 'Thêm người thành công'
                         });
                     });
+
+                     // Create Notification in Database
+                     var newNoti = new Notification({
+                        user_id: people._id,
+                        // type: 2, // 2 = type Meeting
+                        image: meeting.creator.avatar,
+                        title: content,
+                        content: { type: 2, data: meeting }
+                    });
+                    // Attempt to save the user
+                    newNoti.save(function (err, noti) {
+                        if (err) {
+                            return res.json({
+                                success: false,
+                                message: err
+                            }).status(301);
+                        }
+                        if (global.socket_list[noti.user_id.toString()] != null) {
+                            console.log("goi emit notify-user-" + noti.user_id.toString());
+                            global.socket_list[noti.user_id.toString()].emit("notify-user-" + noti.user_id.toString(), { nomal: noti });
+                        } else {
+                            console.log("socket null");
+                            newWaiting = new WaitingNoti({
+                                userID: noti.user_id,
+                                dataNoti: noti
+                            });
+
+                            newWaiting.save(function (err, WaitingNoti) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    console.log("THÊM waiting Noti: " + WaitingNoti);
+                                }
+                            });
+                        }
+                    });
+
+                    // Gửi socket cho người được mời
+                    
                 }
             }
-
-            //
         }
     });
 });

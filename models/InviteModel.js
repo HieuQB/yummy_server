@@ -10,6 +10,7 @@ var InviteSchema = new Schema({
     location: {coordinates: {type: [Number], index: '2d', spherical: true}},
     place: {type: String},
     time: {type: Date,default: Date.now()},
+    meeting: {type: Number, ref:'Meeting', default: 0},
     created_date: {type: Date, default: Date.now()}
 }, {
     usePushEach: true,
