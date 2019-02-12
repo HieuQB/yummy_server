@@ -737,7 +737,7 @@ router.post('/acceptInvite', passport.authenticate('jwt', {
                             user_id: meeting.creator._id,
                             // type: 2, // 2 = type Meeting
                             image: meeting.creator.avatar,
-                            title: content,
+                            title: "Có người vừa đồng ý lời mời đi ăn của bạn. Ấn Đồng ý để xem chi tiết cuộc hẹn",
                             content: { type: 2, data: meeting }
                         });
                         // Attempt to save the user
