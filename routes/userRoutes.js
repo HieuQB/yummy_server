@@ -500,12 +500,35 @@ router.post('/invite', passport.authenticate('jwt', {
     var newInvite = new Invite();
     newInvite.creator = req.user;
     newInvite.userSearch = req.body.userSearch;
-    newInvite.content = req.body.content;
-    newInvite.location = req.body.location;
-    newInvite.place = req.body.place;
-    newInvite.time = req.body.time;
     if (req.body.meeting) {
         newInvite.meeting = req.body.meeting;
+        Meeting.findById(req.body.meeting).exec((err, meeting) => {
+            if (err) {
+                res.json({
+                    success: false,
+                    data: {},
+                    message: `error is : ${err}`
+                });
+            } else {
+                if (!meeting) {
+                    res.json({
+                        success: false,
+                        data: {},
+                        message: "meeting not found"
+                    });
+                } else {
+                    newInvite.content = req.user.fullName.toString() +" muốn mời bạn tham gia cuộc hẹn ở địa điểm " + meeting.place.toString();
+                    newInvite.location = meeting.location;
+                    newInvite.place = meeting.place; 
+                    newInvite.time = meeting.time;
+                }
+            }
+        });
+    } else {
+        newInvite.content = req.body.content;
+        newInvite.location = req.body.location;
+        newInvite.place = req.body.place;
+        newInvite.time = req.body.time;
     }
     newInvite.save(function (err, invite_data) {
         if (err) {
@@ -515,6 +538,7 @@ router.post('/invite', passport.authenticate('jwt', {
                 message: `error is : ${err}`
             });
         } else {
+            console.log(invite_data);
             // Create Notification in Database
             var newNoti = new Notification({
                 user_id: invite_data.userSearch,

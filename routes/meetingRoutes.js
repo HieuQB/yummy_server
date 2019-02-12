@@ -688,7 +688,7 @@ router.post('/invite_user/:meetingID', passport.authenticate('jwt', {
                 } else {
                     return res.json({
                         success: true,
-                        data: [],
+                        data: null,
                         message: 'Gọi API user/invite để tiếp tục'
                     });
 
