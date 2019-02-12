@@ -734,7 +734,7 @@ router.post('/acceptInvite', passport.authenticate('jwt', {
 
                         // Create Notification in Database
                         var newNoti = new Notification({
-                            user_id: people._id,
+                            user_id: meeting.creator._id,
                             // type: 2, // 2 = type Meeting
                             image: meeting.creator.avatar,
                             title: content,
